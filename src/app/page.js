@@ -17,8 +17,9 @@ import { sheetsStatic } from "@/app/data/sheetsStatic";
 
 export default function Home() {
   const mainRef = useRef(null);
-  const [bgColor, setBgColor] = useState("#f0f0ec"); // 기본 라이트
-  const [textColor, setTextColor] = useState("#0f0f13"); // 기본 블랙
+  const BASE_BG = "#f0f0ec"; // 기본 라이트(전체)
+  const BASE_TEXT = "#0f0f13"; // 기본 블랙(전체)
+  const [membersBlend, setMembersBlend] = useState(0); // 0..1 (People 섹션만)
   const [borderRadius, setBorderRadius] = useState(9999); // 초기값: rounded-full
   const [sectionOn, setSectionOn] = useState("cover");
   const [aboutInfo, setAboutInfo] = useState(sheetsStatic?.about || []);
@@ -51,17 +52,10 @@ export default function Home() {
     const mainEl = mainRef.current;
     if (!mainEl) return;
 
-    const membersSection = document.querySelector("#members");
+    const membersSection = mainEl.querySelector("#members");
     if (!membersSection) return;
 
-    const startBg = { r: 240, g: 240, b: 236 }; // #f0f0ec
-    const endBg = { r: 193, g: 184, b: 251 }; // #c1b8fb
-    const startText = { r: 15, g: 15, b: 19 }; // #0f0f13
-    const endText = { r: 93, g: 0, b: 156 }; // #5d009c
-
     const clamp01 = (n) => Math.max(0, Math.min(1, n));
-    const lerp = (a, b, t) => Math.round(a + (b - a) * t);
-    const rgb = ({ r, g, b }) => `rgb(${r}, ${g}, ${b})`;
 
     const thresholds = Array.from({ length: 21 }, (_, i) => i / 20);
     const observer = new IntersectionObserver(
@@ -70,21 +64,7 @@ export default function Home() {
         // We start blending after a small entry to avoid jitter at the boundary.
         const raw = entry?.intersectionRatio ?? 0;
         const t = clamp01((raw - 0.05) / 0.35);
-
-        setBgColor(
-          rgb({
-            r: lerp(startBg.r, endBg.r, t),
-            g: lerp(startBg.g, endBg.g, t),
-            b: lerp(startBg.b, endBg.b, t),
-          })
-        );
-        setTextColor(
-          rgb({
-            r: lerp(startText.r, endText.r, t),
-            g: lerp(startText.g, endText.g, t),
-            b: lerp(startText.b, endText.b, t),
-          })
-        );
+        setMembersBlend(t);
       },
       { threshold: thresholds, root: mainEl } // main 스크롤 기준
     );
@@ -138,10 +118,9 @@ export default function Home() {
       <main
         ref={mainRef}
         style={{
-          background: bgColor, // linear-gradient 포함해서 그냥 배경으로!
-          color: textColor,
-          borderColor: textColor,
-          transition: "background-color 1s ease-in-out",
+          background: BASE_BG, // 전체 배경은 항상 라이트(화이트)
+          color: BASE_TEXT,
+          borderColor: BASE_TEXT,
         }}
         className={`scrollbar-hide z-10 h-[100dvh] w-[100%] overflow-y-scroll snap-y snap-mandatory`}
       >
@@ -149,25 +128,50 @@ export default function Home() {
           id="cover"
           className="relative w-[100%] h-[100%] snap-start flex items-center justify-center"
         >
-          <Cover textColor={textColor} />
+          <Cover textColor={BASE_TEXT} />
         </section>
         <section
           id="about"
           className="relative w-[100%] min-h-[100dvh] snap-start pt-20 lg:pt-18 4xl:pt-[3%] px-0 lg:px-0 content-center"
         >
-          <Desc/> 
+          <Desc sectionOn={sectionOn} /> 
         </section>
         <section
           id="works"
           className={`transition-all duration-1000 lg:content-center w-full relative min-h-[100dvh] snap-start`}
         >
-          <Works textColor={textColor} />
+          <Works textColor={BASE_TEXT} sectionOn={sectionOn} />
         </section>
         <section
           id="members"
+          style={{
+            // Only this section blends to purple; other sections remain BASE_BG
+            backgroundColor: `rgba(193, 184, 251, ${membersBlend})`,
+            color: `rgba(93, 0, 156, ${membersBlend})`,
+          }}
           className="relative w-[100%] min-h-[100dvh] snap-start md:p-28 p-6 lg:px-[12%]"
         >
-          <Members />
+          {/* Soft gradient edges so the transition doesn't look like a hard cut */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-0 left-0 w-full h-[18vh] z-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(240,240,236,1) 0%, rgba(240,240,236,0) 100%)",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-0 left-0 w-full h-[18vh] z-0"
+            style={{
+              background:
+                "linear-gradient(to top, rgba(240,240,236,1) 0%, rgba(240,240,236,0) 100%)",
+            }}
+          />
+
+          <div className="relative z-10">
+            <Members />
+          </div>
         </section>
         <section
           id="contact"

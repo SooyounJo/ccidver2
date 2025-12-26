@@ -2,18 +2,55 @@
 
 import { useEffect, useState } from "react";
 import { useLanguageStore } from "@/app/store/languageStore";
+import { motion, useAnimation } from "framer-motion";
 import { pxGrotesk, neuehaas, programme} from "@/fonts/fonts";
 import { sheetsStatic } from "@/app/data/sheetsStatic";
 import GreyPlaceholder from "@/app/components/common/GreyPlaceholder";
 
-export default function Works({ textColor }) {
+export default function Works({ textColor, sectionOn }) {
   const [worksInfo, setWorksInfo] = useState(sheetsStatic?.works || []);
   const { lang } = useLanguageStore();
   const [isExpanded, setIsExpanded] = useState(false);
+  const headerControls = useAnimation();
+  const lineControls = useAnimation();
+  const contentControls = useAnimation();
   
   useEffect(() => {
     setWorksInfo(sheetsStatic?.works || []);
   }, []);
+
+  useEffect(() => {
+    if (sectionOn !== "works") return;
+
+    // Fast, sequential entrance: header -> line -> content
+    headerControls.set({ y: 14, opacity: 0 });
+    lineControls.set({ scaleX: 0 });
+    contentControls.set({ y: 10, opacity: 0 });
+
+    let cancelled = false;
+    (async () => {
+      await headerControls.start({
+        y: 0,
+        opacity: 1,
+        transition: { duration: 0.22, ease: "easeOut" },
+      });
+      if (cancelled) return;
+      await lineControls.start({
+        scaleX: 1,
+        transition: { duration: 0.28, ease: "easeInOut" },
+      });
+      if (cancelled) return;
+      await contentControls.start({
+        y: 0,
+        opacity: 1,
+        transition: { duration: 0.22, ease: "easeOut" },
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sectionOn, headerControls, lineControls, contentControls]);
 
   const rows = Array.isArray(worksInfo) ? worksInfo : [];
   // The sheet is organized in 3-row blocks:
@@ -58,12 +95,25 @@ export default function Works({ textColor }) {
           ? tagsByClient2025[client]
           : [];
 
+      const imagesByClient2025 = {
+        "LG Electronics": ["/img/2025/lg/1.png", "/img/2025/lg/2.png", "/img/2025/lg/mw2.mp4"],
+        // CJ: only 2 images (3rd slot intentionally omitted)
+        "CJ CGV & Naver Cloud": ["/img/2025/cj/co1.png", "/img/2025/cj/co2.png"],
+        "Hyundai Motors": ["/img/2025/hy/hy1.png", "/img/2025/hy/hy3.png", "/img/2025/hy/hy2.png"],
+        "Ministry of Trade, Industry and Energy": ["/img/2025/mini/mi1.png", "/img/2025/mini/mi2.png", "/img/2025/mini/mi3.png"],
+      };
+      const images =
+        currentYear === "2025" && imagesByClient2025[client]
+          ? imagesByClient2025[client]
+          : [];
+
       out.push({
         year: currentYear,
         title: titleRaw,
         client,
         project,
         tags,
+        images,
       });
     }
 
@@ -96,24 +146,31 @@ export default function Works({ textColor }) {
   return (
     <>
       <div
-        className={`text-primaryB pt-[12%] pb-[80%] ${lang === 'kr' ? 'lg:pt-[4dvh]' : 'lg:pt-[8%]'} lg:pb-[10%] lg:px-[5vw] w-full h-full font-[400] `}
+        className={`text-primaryB pt-[12%] pb-[80%] ${lang === 'kr' ? 'lg:pt-[4dvh]' : 'lg:pt-[8%]'} lg:pb-[10%] lg:px-[5.5vw] w-full h-full font-[400] `}
       >
         {visibleProjects.length > 0 ? (
           <div className="text-primaryC bg-[rgba(240,240,236,0.55)] backdrop-blur-[2px]">
             {/* Header row */}
-            <div className="border-b-2 border-primaryC py-4 lg:py-5">
-              <div
+            <div className="pt-3 lg:pt-4">
+              <motion.div
+                animate={headerControls}
                 className={`${neuehaas.className} tracking-[-0.03em] leading-none whitespace-nowrap text-[6.8vw] md:text-[4.6vw] lg:text-[2.8vw]`}
               >
                 {selectedHeaderRaw}
-              </div>
+              </motion.div>
+              <motion.div
+                animate={lineControls}
+                className="mt-2 lg:mt-3 h-[2px] bg-primaryC origin-left"
+              />
             </div>
-            {visibleProjects.map((p, idx) => (
-              <div
-                key={`${p.year}-${idx}-${p.title}`}
-                className="border-b-2 border-primaryC pt-7 pb-12 lg:pt-9 lg:pb-16"
-              >
-                <div className="grid grid-cols-12 gap-4 lg:gap-8 items-start">
+
+            <motion.div animate={contentControls}>
+              {visibleProjects.map((p, idx) => (
+                <div
+                  key={`${p.year}-${idx}-${p.title}`}
+                  className="border-b-2 border-primaryC pt-3 pb-7 lg:pt-4 lg:pb-9"
+                >
+                  <div className="grid grid-cols-12 gap-4 lg:gap-8 items-start">
                   {/* Left: Title + Year */}
                   <div className="col-span-12 lg:col-span-3">
                     <div className={`${neuehaas.className} tracking-[-0.03em] leading-[1.05]`}>
@@ -127,7 +184,7 @@ export default function Works({ textColor }) {
                           </div>
                         
                   {/* Middle: meta */}
-                  <div className="col-span-12 lg:col-span-4">
+                  <div className="col-span-12 lg:col-span-3">
                     {/* Tags (2025 only) + details */}
                     <div className={`${pxGrotesk.className} flex flex-col gap-3 text-[3.2vw] md:text-[2.3vw] lg:text-[0.9vw] leading-[1.5]`}>
                       {Array.isArray(p.tags) && p.tags.length > 0 && (
@@ -156,16 +213,73 @@ export default function Works({ textColor }) {
                   </div>
 
                   {/* Right: image boxes (grey-toned) */}
-                  <div className="col-span-12 lg:col-span-5">
-                    <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4">
-                      <GreyPlaceholder className="w-full rounded-sm aspect-[16/9]" />
-                      <GreyPlaceholder className="w-full rounded-sm aspect-[16/9]" />
-                      <GreyPlaceholder className="w-full rounded-sm aspect-[16/9] hidden xl:block" />
+                  <div className="col-span-12 lg:col-span-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3">
+                      {/* Bigger boxes like reference: taller aspect + a bit more presence */}
+                      {Array.isArray(p.images) && p.images.length > 0 ? (
+                        <>
+                          {/*
+                            CJ(2025): hide the 3rd slot entirely.
+                            Keep the 3-col grid so the first two boxes don't change size/position.
+                          */}
+                          {p.images[0] ? (
+                            <img
+                              src={p.images[0]}
+                              alt={`${p.client || "project"} image 1`}
+                              className="w-full rounded-sm aspect-[16/10] object-cover"
+                            />
+                          ) : (
+                            <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
+                          )}
+
+                          {p.images[1] ? (
+                            <img
+                              src={p.images[1]}
+                              alt={`${p.client || "project"} image 2`}
+                              className="w-full rounded-sm aspect-[16/10] object-cover"
+                            />
+                          ) : (
+                            <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
+                          )}
+
+                          {!(p.year === "2025" && p.client === "CJ CGV & Naver Cloud") &&
+                            (p.images[2] ? (
+                              String(p.images[2]).toLowerCase().endsWith(".mp4") ? (
+                                <video
+                                  src={p.images[2]}
+                                    className="w-full rounded-sm aspect-[16/10] object-cover"
+                                  autoPlay
+                                  muted
+                                  loop
+                                  playsInline
+                                  preload="metadata"
+                                />
+                              ) : (
+                                <img
+                                  src={p.images[2]}
+                                  alt={`${p.client || "project"} image 3`}
+                                    className="w-full rounded-sm aspect-[16/10] object-cover"
+                                />
+                              )
+                            ) : (
+                              <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
+                            ))}
+                        </>
+                      ) : (
+                        <>
+                          <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
+                          <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
+                          {!(p.year === "2025" && p.client === "CJ CGV & Naver Cloud") && (
+                            <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+              ))}
+            </motion.div>
 
             {hasMore && (
               <div className="pt-10 pb-14 lg:pt-12 lg:pb-16 flex justify-center">
