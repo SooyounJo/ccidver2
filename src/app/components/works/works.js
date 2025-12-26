@@ -96,7 +96,7 @@ export default function Works({ textColor, sectionOn }) {
           : [];
 
       const imagesByClient2025 = {
-        "LG Electronics": ["/img/2025/lg/1.png", "/img/2025/lg/2.png", "/img/2025/lg/mw2.mp4"],
+        "LG Electronics": ["/img/2025/lg/1.png", "/img/2025/lg/2.png", "/img/2025/lg/3.png"],
         // CJ: only 2 images (3rd slot intentionally omitted)
         "CJ CGV & Naver Cloud": ["/img/2025/cj/co1.png", "/img/2025/cj/co2.png"],
         "Hyundai Motors": ["/img/2025/hy/hy1.png", "/img/2025/hy/hy3.png", "/img/2025/hy/hy2.png"],
@@ -193,7 +193,7 @@ export default function Works({ textColor, sectionOn }) {
                             <span
                               key={t}
                               // Match the height of the (previous) label capsules: same py + leading
-                              className="inline-flex items-center rounded-full bg-primaryC px-3 py-1.5 leading-none text-[3vw] md:text-[2vw] lg:text-[0.8vw] text-white"
+                              className="inline-flex items-center rounded-md bg-primaryC px-3 py-2 leading-none text-[3vw] md:text-[2vw] lg:text-[0.8vw] text-primaryW"
                             >
                               {t}
                                       </span>
@@ -214,7 +214,7 @@ export default function Works({ textColor, sectionOn }) {
 
                   {/* Right: image boxes (grey-toned) */}
                   <div className="col-span-12 lg:col-span-6">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-[6px] lg:gap-[10px]">
                       {/* Bigger boxes like reference: taller aspect + a bit more presence */}
                       {Array.isArray(p.images) && p.images.length > 0 ? (
                         <>

@@ -14,6 +14,7 @@ import Works from "./components/works/works";
 import Members from "./components/members";
 import Contact from "./components/contact/contact";
 import { sheetsStatic } from "@/app/data/sheetsStatic";
+import GradualBlurTop from "./components/common/GradualBlurTop";
 
 export default function Home() {
   const mainRef = useRef(null);
@@ -63,7 +64,8 @@ export default function Home() {
         // Use intersection ratio to blend colors smoothly.
         // We start blending after a small entry to avoid jitter at the boundary.
         const raw = entry?.intersectionRatio ?? 0;
-        const t = clamp01((raw - 0.05) / 0.35);
+        // Spread the transition a bit more so it feels more gradual.
+        const t = clamp01((raw - 0.03) / 0.55);
         setMembersBlend(t);
       },
       { threshold: thresholds, root: mainEl } // main 스크롤 기준
@@ -101,6 +103,8 @@ export default function Home() {
       className="w-[100%] absolute scrollbar-hide bg-white z-[-2] overflow-x-hidden"
       // onMouseMove={handleMouseMove}
     >
+      {/* ReactBits-style gradual blur under the top navigation */}
+      <GradualBlurTop sectionOn={sectionOn} />
       <Header sectionOn={sectionOn} />
       <Nav sectionOn={sectionOn} />
 
@@ -144,28 +148,46 @@ export default function Home() {
         </section>
         <section
           id="members"
-          style={{
-            // Only this section blends to purple; other sections remain BASE_BG
-            backgroundColor: `rgba(193, 184, 251, ${membersBlend})`,
-            color: `rgba(93, 0, 156, ${membersBlend})`,
-          }}
+          style={(() => {
+            // Only this section blends to purple; cap the max blend so the purple stays a bit lighter.
+            const clamp01 = (n) => Math.max(0, Math.min(1, n));
+            const lerp = (a, b, t) => Math.round(a + (b - a) * t);
+            const t = clamp01(membersBlend) * 0.7; // max 70% tint
+
+            const base = { r: 240, g: 240, b: 236 }; // #f0f0ec
+            const purple = { r: 193, g: 184, b: 251 }; // #c1b8fb
+            const bg = `rgb(${lerp(base.r, purple.r, t)}, ${lerp(base.g, purple.g, t)}, ${lerp(
+              base.b,
+              purple.b,
+              t
+            )})`;
+
+            // Text tint eases in quickly so readability stays consistent.
+            const textT = clamp01(membersBlend / 0.35);
+            const text = `rgba(93, 0, 156, ${textT})`;
+
+            return {
+              backgroundColor: bg,
+              color: text,
+            };
+          })()}
           className="relative w-[100%] min-h-[100dvh] snap-start md:p-28 p-6 lg:px-[12%]"
         >
           {/* Soft gradient edges so the transition doesn't look like a hard cut */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute top-0 left-0 w-full h-[18vh] z-0"
+            className="pointer-events-none absolute top-0 left-0 w-full h-[28vh] z-0"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(240,240,236,1) 0%, rgba(240,240,236,0) 100%)",
+                "linear-gradient(to bottom, rgba(240,240,236,1) 0%, rgba(240,240,236,0.65) 35%, rgba(240,240,236,0) 100%)",
             }}
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute bottom-0 left-0 w-full h-[18vh] z-0"
+            className="pointer-events-none absolute bottom-0 left-0 w-full h-[28vh] z-0"
             style={{
               background:
-                "linear-gradient(to top, rgba(240,240,236,1) 0%, rgba(240,240,236,0) 100%)",
+                "linear-gradient(to top, rgba(240,240,236,1) 0%, rgba(240,240,236,0.65) 35%, rgba(240,240,236,0) 100%)",
             }}
           />
 

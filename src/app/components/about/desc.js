@@ -5,7 +5,7 @@ import { pxGrotesk } from "@/fonts/fonts";
 import { neuehaas } from "@/fonts/fonts";
 import { sheetsStatic } from "@/app/data/sheetsStatic";
 import GreyPlaceholder from "@/app/components/common/GreyPlaceholder";
-import { motion, useAnimation } from "framer-motion";
+import { motion } from "framer-motion";
 
 function DescItem({ id, title, description, imageUrl, isOpen, onToggle }) {
   const textStyle =
@@ -36,7 +36,6 @@ function DescItem({ id, title, description, imageUrl, isOpen, onToggle }) {
           <GreyPlaceholder className="w-full mb-[1.3vw] rounded-md aspect-[16/9]" />
         )}
         <div className="relative">
-          {/* Collapsed preview (fade at bottom) vs expanded full text */}
           <div
             className={[
               "transition-[max-height] duration-500 ease-out overflow-hidden",
@@ -45,6 +44,7 @@ function DescItem({ id, title, description, imageUrl, isOpen, onToggle }) {
             style={
               !isOpen
                 ? {
+                    // Fade the text itself toward the bottom (like the reference)
                     WebkitMaskImage:
                       "linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)",
                     maskImage:
@@ -68,31 +68,27 @@ function DescItem({ id, title, description, imageUrl, isOpen, onToggle }) {
 export default function Desc({ sectionOn }) {
   const [aboutInfo, setAboutInfo] = useState(sheetsStatic?.desc || []);
   const { lang } = useLanguageStore();
-  const listControls = useAnimation();
-  // Default: "Who We Are" open on initial About render
+  // Default: "Who We Are" open on initial render
   const [openIndex, setOpenIndex] = useState(0);
 
   useEffect(() => {
     setAboutInfo(sheetsStatic?.desc || []);
   }, []);
 
-  useEffect(() => {
-    if (sectionOn !== "about") return;
-
-    // Quick rise-up + fade-in for the 3-set when entering About
-    listControls.set({ y: 16, opacity: 0 });
-    listControls.start({
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.28, ease: "easeOut" },
-    });
-  }, [sectionOn, listControls]);
-
   const rows = Array.isArray(aboutInfo) ? aboutInfo : [];
 
   return (
     <motion.ul
-      animate={listControls}
+      initial="hidden"
+      animate={sectionOn === "about" ? "show" : "hidden"}
+      variants={{
+        hidden: { y: 24, opacity: 0 },
+        show: {
+          y: 0,
+          opacity: 1,
+          transition: { duration: 0.32, ease: "easeOut" },
+        },
+      }}
       className="border-primaryB w-full h-full mt-[1.3vw] px-0 text-primaryB pt-[8%] pb-[18%] flex flex-col"
     >
       {rows.map((item, i) => (
