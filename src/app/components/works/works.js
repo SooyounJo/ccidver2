@@ -84,16 +84,30 @@ export default function Works({ textColor, sectionOn }) {
       const client = parts.length > 1 ? parts[0].trim() : "";
       const project = parts.length > 1 ? parts.slice(1).join(":").trim() : titleRaw;
 
-      const tagsByClient2025 = {
-        "LG Electronics": ["#Cooperation", "#CX"],
-        "CJ CGV & Naver Cloud": ["#Cooperation", "#UX"],
-        "Hyundai Motors": ["#Cooperation", "#UX"],
-        "Ministry of Trade, Industry and Energy": ["#Cooperation", "#UX"],
+      const categoriesByClient2025 = {
+        "LG Electronics": ["Cooperation", "CX"],
+        "CJ CGV & Naver Cloud": ["Cooperation", "UX"],
+        "Hyundai Motors": ["Cooperation", "UX"],
+        "Ministry of Trade, Industry and Energy": ["Cooperation", "UX"],
       };
-      const tags =
-        currentYear === "2025" && tagsByClient2025[client]
-          ? tagsByClient2025[client]
+      const categories =
+        currentYear === "2025" && categoriesByClient2025[client]
+          ? categoriesByClient2025[client]
           : [];
+
+      const tfByClient2025 = {
+        "LG Electronics":
+          "Hyeonji Lee, Sooyoun Jo, Ji Min Rhee, Tae Eun Kim, Youngchae Seo, Buyeon Kwon, Gaeun Huh,\nEun Seol Kim",
+        "CJ CGV & Naver Cloud":
+          "Hyeonji Lee, Jiwon Park, Tae Eun Kim, Yaeji Jang, Sooyoun Jo",
+        "Hyundai Motors":
+          "Hyeonji Lee, Jiwon Park, Tae Eun Kim, Yaeji Jang, Sooyoun Jo, Hyeonji Lee,  Jiwon Park, Tae Eun Kim, Yaeji Jang",
+      };
+      const tf =
+        currentYear === "2025" && tfByClient2025[client] ? tfByClient2025[client] : "";
+
+      // Use the full project description text
+      const description = project;
 
       const imagesByClient2025 = {
         "LG Electronics": ["/img/2025/lg/1.png", "/img/2025/lg/2.png", "/img/2025/lg/3.png"],
@@ -111,8 +125,11 @@ export default function Works({ textColor, sectionOn }) {
         year: currentYear,
         title: titleRaw,
         client,
-        project,
-        tags,
+        // Use existing project text as the description body for now.
+        description,
+        // Placeholder; user will fill later.
+        tf,
+        categories,
         images,
       });
     }
@@ -149,7 +166,7 @@ export default function Works({ textColor, sectionOn }) {
         className={`text-primaryB pt-[12%] pb-[80%] ${lang === 'kr' ? 'lg:pt-[4dvh]' : 'lg:pt-[8%]'} lg:pb-[10%] lg:px-[5.5vw] w-full h-full font-[400] `}
       >
         {visibleProjects.length > 0 ? (
-          <div className="text-primaryC bg-[rgba(240,240,236,0.55)] backdrop-blur-[2px]">
+          <div className="text-primaryB bg-[rgba(240,240,236,0.55)] backdrop-blur-[2px]">
             {/* Header row */}
             <div className="pt-3 lg:pt-4">
               <motion.div
@@ -160,7 +177,7 @@ export default function Works({ textColor, sectionOn }) {
               </motion.div>
               <motion.div
                 animate={lineControls}
-                className="mt-2 lg:mt-3 h-[2px] bg-primaryC origin-left"
+                className="mt-2 lg:mt-3 h-[2px] bg-primaryB origin-left"
               />
             </div>
 
@@ -168,52 +185,64 @@ export default function Works({ textColor, sectionOn }) {
               {visibleProjects.map((p, idx) => (
                 <div
                   key={`${p.year}-${idx}-${p.title}`}
-                  className="border-b-2 border-primaryC pt-3 pb-7 lg:pt-4 lg:pb-9"
+                  className="border-b-2 border-primaryB pt-3 pb-10 lg:pt-4 lg:pb-14"
                 >
-                  <div className="grid grid-cols-12 gap-4 lg:gap-8 items-start">
+                  <div className="grid grid-cols-12 gap-y-4 lg:gap-y-8 gap-x-6 md:gap-x-8 lg:gap-x-10 items-stretch">
                   {/* Left: Title + Year */}
-                  <div className="col-span-12 lg:col-span-3">
-                    <div className={`${neuehaas.className} tracking-[-0.03em] leading-[1.05]`}>
+                  <div className="col-span-12 lg:col-span-3 pt-2 lg:pt-3">
+                    <div className={`${neuehaas.className} tracking-[-0.03em] leading-[1.05] h-full flex flex-col`}>
                       <div className="text-[5.8vw] md:text-[4.1vw] lg:text-[1.9vw]">
                         {p.client ? p.client.toUpperCase() : p.project.toUpperCase()}
                       </div>
                       <div className={`${pxGrotesk.className} text-[4.8vw] md:text-[3.4vw] lg:text-[1.25vw] mt-1`}>
                         {p.year || ""}
                       </div>
+
+                      {/* Single keyword directly under the year (bottom-left of the year block) */}
+                      {Array.isArray(p.categories) && p.categories.length > 0 && (
+                        <div className="mt-3 lg:mt-auto flex flex-wrap gap-2">
+                          {[...p.categories]
+                            .sort((a, b) => (a === "Cooperation") - (b === "Cooperation"))
+                            .map((c) => (
+                              <span
+                                key={c}
+                                className={`${pxGrotesk.className} inline-flex items-center rounded-full border border-primaryB px-2.5 py-1 leading-[1] text-[2.8vw] md:text-[1.9vw] lg:text-[0.78vw] text-primaryB`}
+                              >
+                                {c}
+                              </span>
+                            ))}
+                        </div>
+                      )}
                     </div>
                           </div>
                         
                   {/* Middle: meta */}
-                  <div className="col-span-12 lg:col-span-3">
-                    {/* Tags (2025 only) + details */}
-                    <div className={`${pxGrotesk.className} flex flex-col gap-3 text-[3.2vw] md:text-[2.3vw] lg:text-[0.9vw] leading-[1.5]`}>
-                      {Array.isArray(p.tags) && p.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 justify-start">
-                          {p.tags.map((t) => (
-                            <span
-                              key={t}
-                              // Match the height of the (previous) label capsules: same py + leading
-                              className="inline-flex items-center rounded-md bg-primaryC px-3 py-2 leading-none text-[3vw] md:text-[2vw] lg:text-[0.8vw] text-primaryW"
-                            >
-                              {t}
-                                      </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {p.client && (
-                        <div className="min-w-0 break-words">
-                          <span className="opacity-70">Client:</span> {p.client}
-                        </div>
-                      )}
-                      <div className="min-w-0 break-words">
-                        <span className="opacity-70">Project:</span> {p.project}
+                  <div className="col-span-12 lg:col-span-3 pt-2 lg:pt-3 px-2 md:px-4 lg:px-6">
+                    {/* Details: plain description (top), participants list anchored bottom on lg */}
+                    <div className={`${pxGrotesk.className} h-full flex flex-col gap-2 text-[2.5vw] md:text-[2vw] lg:text-[0.82vw] leading-[1.45]`}>
+                      <div className="min-w-0 whitespace-normal break-words lg:pb-2">
+                        {p.description || ""}
                       </div>
+                      {p.tf && String(p.tf).trim() !== "" && (
+                        <div className="min-w-0 mt-1 lg:mt-auto opacity-70">
+                          <span className="text-[2.3vw] md:text-[1.9vw] lg:text-[0.78vw] leading-[1.34]">
+                            {String(p.tf)
+                              .split(/,\s*|\n+/)
+                              .filter((n) => n && n.trim().length > 0)
+                              .map((name, i, arr) => (
+                                <span key={`${name}-${i}`}>
+                                  <span className="whitespace-nowrap">{name.trim()}</span>
+                                  {i < arr.length - 1 ? ", " : ""}
+                                </span>
+                              ))}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Right: image boxes (grey-toned) */}
-                  <div className="col-span-12 lg:col-span-6">
+                  <div className="col-span-12 lg:col-span-6 pt-2 lg:pt-3">
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-[6px] lg:gap-[10px]">
                       {/* Bigger boxes like reference: taller aspect + a bit more presence */}
                       {Array.isArray(p.images) && p.images.length > 0 ? (
@@ -286,7 +315,7 @@ export default function Works({ textColor, sectionOn }) {
                 <button
                   type="button"
                   onClick={() => setIsExpanded((v) => !v)}
-                  className={`${pxGrotesk.className} border-2 border-primaryC px-6 py-3 lg:px-7 lg:py-3 rounded-full text-[3.2vw] md:text-[2.1vw] lg:text-[0.9vw] text-primaryC hover:bg-primaryC hover:text-primaryW transition-colors`}
+                  className={`${pxGrotesk.className} border-2 border-primaryB px-6 py-3 lg:px-7 lg:py-3 rounded-full text-[3.2vw] md:text-[2.1vw] lg:text-[0.9vw] text-primaryB hover:bg-primaryB hover:text-primaryW transition-colors`}
                 >
                   {toggleLabel}
                 </button>
