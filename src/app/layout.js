@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./multilingual.css";
 // import { Inter } from "next/font/google";
 import { pxGrotesk } from "@/fonts/fonts";
 

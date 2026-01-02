@@ -14,6 +14,7 @@ export default function Works({ textColor, sectionOn }) {
   const headerControls = useAnimation();
   const lineControls = useAnimation();
   const contentControls = useAnimation();
+  const [contentFont, setContentFont] = useState("default");
   
   useEffect(() => {
     setWorksInfo(sheetsStatic?.works || []);
@@ -84,6 +85,16 @@ export default function Works({ textColor, sectionOn }) {
       const client = parts.length > 1 ? parts[0].trim() : "";
       const project = parts.length > 1 ? parts.slice(1).join(":").trim() : titleRaw;
 
+      // Helper to shorten description at a specific keyword (case-insensitive)
+      const cutAtWord = (str, word) => {
+        const s = String(str || "");
+        const w = String(word || "");
+        if (!s || !w) return s;
+        const idx = s.toLowerCase().indexOf(w.toLowerCase());
+        if (idx === -1) return s;
+        return s.slice(0, idx + w.length).trim();
+      };
+
       const categoriesByClient2025 = {
         "LG Electronics": ["Cooperation", "CX"],
         "CJ CGV & Naver Cloud": ["Cooperation", "UX"],
@@ -106,8 +117,17 @@ export default function Works({ textColor, sectionOn }) {
       const tf =
         currentYear === "2025" && tfByClient2025[client] ? tfByClient2025[client] : "";
 
-      // Use the full project description text
-      const description = project;
+      // Shortened description per design, still rendered as a single line
+      let description = project;
+      if (currentYear === "2025") {
+        if (client === "LG Electronics") description = cutAtWord(project, "CX");
+        if (client === "CJ CGV & Naver Cloud") description = cutAtWord(project, "Platform");
+        if (client === "Hyundai Motors") {
+          description = cutAtWord(project, "Process");
+          // Remove "Exterior" word per request
+          description = description.replace(/\bExterior\b\s*/i, "");
+        }
+      }
 
       const imagesByClient2025 = {
         "LG Electronics": ["/img/2025/lg/1.png", "/img/2025/lg/2.png", "/img/2025/lg/3.png"],
@@ -163,10 +183,44 @@ export default function Works({ textColor, sectionOn }) {
   return (
     <>
       <div
-        className={`text-primaryB pt-[12%] pb-[80%] ${lang === 'kr' ? 'lg:pt-[4dvh]' : 'lg:pt-[8%]'} lg:pb-[10%] lg:px-[5.5vw] w-full h-full font-[400] `}
+        className={`text-primaryB pt-[12%] pb-[80%] ${lang === 'kr' ? 'lg:pt-[4dvh]' : 'lg:pt-[8%]'} lg:pb-[10%] lg:px-[5.5vw] w-full h-full font-[400] relative overflow-hidden`}
       >
+        {/* Font toggle controls (hel / pre) on the right */}
+        <div className="hidden lg:flex absolute right-[5.5vw] top-10 z-[550] gap-2 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-primaryB/20 shadow-sm">
+          <button
+            type="button"
+            onClick={() => setContentFont("hel")}
+            className={`${pxGrotesk.className} border border-primaryB/60 px-2.5 py-1 rounded-full text-[0.8vw] ${contentFont === "hel" ? "bg-primaryB text-white" : "text-primaryB"}`}
+            aria-pressed={contentFont === "hel"}
+          >
+            hel
+          </button>
+          <button
+            type="button"
+            onClick={() => setContentFont("pre")}
+            className={`${pxGrotesk.className} border border-primaryB/60 px-2.5 py-1 rounded-full text-[0.8vw] ${contentFont === "pre" ? "bg-primaryB text-white" : "text-primaryB"}`}
+            aria-pressed={contentFont === "pre"}
+          >
+            pre
+          </button>
+        </div>
+        {/* Subtle bottom-to-top lavender gradient shown only when Works is active */}
+        <motion.div
+          aria-hidden="true"
+          initial={false}
+          animate={{
+            opacity: sectionOn === "works" ? 1 : 0,
+            y: sectionOn === "works" ? 0 : 16,
+          }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="pointer-events-none absolute bottom-0 left-0 w-full h-[34vh] z-0"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(193,184,251,0.14) 0%, rgba(193,184,251,0) 80%)",
+          }}
+        />
         {visibleProjects.length > 0 ? (
-          <div className="text-primaryB bg-[rgba(240,240,236,0.55)] backdrop-blur-[2px]">
+          <div className="relative z-10 text-primaryB bg-[rgba(240,240,236,0.55)] backdrop-blur-[2px]">
             {/* Header row */}
             <div className="pt-3 lg:pt-4">
               <motion.div
@@ -187,7 +241,7 @@ export default function Works({ textColor, sectionOn }) {
                   key={`${p.year}-${idx}-${p.title}`}
                   className="border-b-2 border-primaryB pt-3 pb-10 lg:pt-4 lg:pb-14"
                 >
-                  <div className="grid grid-cols-12 gap-y-4 lg:gap-y-8 gap-x-6 md:gap-x-8 lg:gap-x-10 items-stretch">
+                  <div className="grid grid-cols-12 gap-y-4 lg:gap-y-8 gap-x-5 md:gap-x-6 lg:gap-x-8 items-stretch">
                   {/* Left: Title + Year */}
                   <div className="col-span-12 lg:col-span-3 pt-2 lg:pt-3">
                     <div className={`${neuehaas.className} tracking-[-0.03em] leading-[1.05] h-full flex flex-col`}>
@@ -217,15 +271,27 @@ export default function Works({ textColor, sectionOn }) {
                           </div>
                         
                   {/* Middle: meta */}
-                  <div className="col-span-12 lg:col-span-3 pt-2 lg:pt-3 px-2 md:px-4 lg:px-6">
-                    {/* Details: plain description (top), participants list anchored bottom on lg */}
-                    <div className={`${pxGrotesk.className} h-full flex flex-col gap-2 text-[2.5vw] md:text-[2vw] lg:text-[0.82vw] leading-[1.45]`}>
-                      <div className="min-w-0 whitespace-normal break-words lg:pb-2">
-                        {p.description || ""}
+                  <div className="col-span-12 lg:col-span-3 pt-2 lg:pt-3 px-1 md:px-3 lg:px-4">
+                    {/* Details: Brief (single line) + TF (wrapped), with label column */}
+                    <div className={`${pxGrotesk.className} h-full flex flex-col gap-2 text-[3vw] md:text-[2.2vw] lg:text-[0.95vw] leading-[1.2]`}>
+                      <div className="min-w-0 pr-2 lg:pr-4 lg:pb-2 overflow-hidden">
+                        <span
+                          className="opacity-70 truncate"
+                          style={
+                            contentFont === "hel"
+                              ? { fontFamily: 'Helvetica, Arial, sans-serif' }
+                              : contentFont === "pre"
+                              ? { fontFamily: 'pretendardR, Pretendard, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif' }
+                              : undefined
+                          }
+                        >
+                          {p.description || ""}
+                        </span>
                       </div>
                       {p.tf && String(p.tf).trim() !== "" && (
-                        <div className="min-w-0 mt-1 lg:mt-auto opacity-70">
-                          <span className="text-[2.3vw] md:text-[1.9vw] lg:text-[0.78vw] leading-[1.34]">
+                        <div className="min-w-0 mt-1 lg:mt-auto">
+                          <span className="opacity-70 text-[3vw] md:text-[2.2vw] lg:text-[0.95vw] leading-[1.12]">
+                            <span style={contentFont === "hel" ? { fontFamily: 'Helvetica, Arial, sans-serif' } : (contentFont === "pre" ? { fontFamily: 'pretendardR, Pretendard, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif' } : undefined)}>
                             {String(p.tf)
                               .split(/,\s*|\n+/)
                               .filter((n) => n && n.trim().length > 0)
@@ -235,6 +301,7 @@ export default function Works({ textColor, sectionOn }) {
                                   {i < arr.length - 1 ? ", " : ""}
                                 </span>
                               ))}
+                            </span>
                           </span>
                         </div>
                       )}
