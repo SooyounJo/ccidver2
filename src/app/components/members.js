@@ -75,23 +75,21 @@ export default function Members() {
           </div>
         </div>
         <div className={`${textColClass} col-span-1 w-[250px] flex flex-col items-start text-left`}>
-          <div className="h-[40px] flex items-center overflow-hidden">
-            <p className={`${neuehaas.className} text-[16px] leading-[1.45] font-medium text-black`}>
-              {name || ""}
-            </p>
-          </div>
+          <p className={`${neuehaas.className} text-[16px] leading-[1.45] font-medium text-black`}>
+            {name || ""}
+          </p>
           {role && (
-            <div className="flex flex-col items-start">
-              <p className={`${neuehaas.className} text-[16px] leading-[1.45] font-light text-black/70`}>
-                {role}
-              </p>
-            </div>
+            <p
+              className={`${neuehaas.className} leading-[1.45] font-light text-black/70 ${
+                role.length > 22 ? "text-[14px]" : "text-[16px]"
+              }`}
+            >
+              {role}
+            </p>
           )}
-          <div className="w-full h-px bg-black/70 mt-[8px]" />
-          <div className="h-[16px] w-full" />
           {bio && (
             <div
-              className={`${neuehaas.className} text-[12px] leading-[1.45] font-light text-black/70 whitespace-pre-wrap w-full`}
+              className={`${neuehaas.className} text-[12px] leading-[1.45] font-light text-black/70 whitespace-pre-wrap w-full mt-[16px]`}
             >
               {bio}
             </div>
