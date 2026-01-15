@@ -5,6 +5,7 @@ import { pxGrotesk } from "@/fonts/fonts";
 
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: "Center for Creative Intelligence Design",
   description: "Shaping the future through insight, innovation and impact",
   keywords: "CCID, creative, intelligence, karts, design, ai, lab, convergence",
@@ -20,13 +21,14 @@ export const metadata = {
       },
     ],
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1.0,
-    minimumScale: 1.0,
-    maximumScale: 1.0,
-    userScalable: "no",
-  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1.0,
+  minimumScale: 1.0,
+  maximumScale: 1.0,
+  userScalable: "no",
 };
 
 export default function RootLayout({ children }) {

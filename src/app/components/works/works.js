@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguageStore } from "@/app/store/languageStore";
 import { motion, useAnimation } from "framer-motion";
 import { pxGrotesk, neuehaas, programme} from "@/fonts/fonts";
@@ -11,10 +11,17 @@ export default function Works({ textColor, sectionOn }) {
   const [worksInfo, setWorksInfo] = useState(sheetsStatic?.works || []);
   const { lang } = useLanguageStore();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hoveredRowKey, setHoveredRowKey] = useState(null);
+  const [hoveredRowMedia, setHoveredRowMedia] = useState([]);
+  const [hoveredMediaIndex, setHoveredMediaIndex] = useState(0);
   const headerControls = useAnimation();
   const lineControls = useAnimation();
   const contentControls = useAnimation();
   const [contentFont, setContentFont] = useState("default");
+  const rootRef = useRef(null);
+
+  const EXPANDED_BODY =
+    "LG Electronics: Affectionate Ingelligence CX DesignLG Electronics: Affectionate Ingelligence CX DesignLG Electronics: Affectionate Ingelligence CX DesignLG Electronics: Affectionate Ingelligence CX Design";
   
   useEffect(() => {
     setWorksInfo(sheetsStatic?.works || []);
@@ -52,6 +59,18 @@ export default function Works({ textColor, sectionOn }) {
       cancelled = true;
     };
   }, [sectionOn, headerControls, lineControls, contentControls]);
+
+  // Slideshow on hover-expanded row: rotate available media every 5s.
+  useEffect(() => {
+    if (!hoveredRowKey) return;
+    if (!Array.isArray(hoveredRowMedia) || hoveredRowMedia.length <= 1) return;
+
+    const id = window.setInterval(() => {
+      setHoveredMediaIndex((prev) => (prev + 1) % hoveredRowMedia.length);
+    }, 5000);
+
+    return () => window.clearInterval(id);
+  }, [hoveredRowKey, hoveredRowMedia]);
 
   const rows = Array.isArray(worksInfo) ? worksInfo : [];
   // The sheet is organized in 3-row blocks:
@@ -108,24 +127,29 @@ export default function Works({ textColor, sectionOn }) {
 
       const tfByClient2025 = {
         "LG Electronics":
-          "Hyeonji Lee, Sooyoun Jo, Ji Min Rhee, Tae Eun Kim, Youngchae Seo, Buyeon Kwon, Gaeun Huh,\nEun Seol Kim",
+          "Hyeonji Lee, Sooyoun Jo, Ji Min Rhee,\nTae Eun Kim, Youngchae Seo, Buyeon Kwon\nGaeun Huh, Eun Seol Kim",
         "CJ CGV & Naver Cloud":
-          "Hyeonji Lee, Jiwon Park, Tae Eun Kim, Yaeji Jang, Sooyoun Jo",
+          "Hyeonji Lee, Jiwon Park, Tae Eun Kim\nYaeji Jang, Sooyoun Jo",
         "Hyundai Motors":
-          "Hyeonji Lee, Jiwon Park, Tae Eun Kim, Yaeji Jang, Sooyoun Jo, Hyeonji Lee,  Jiwon Park, Tae Eun Kim, Yaeji Jang",
+          "Hyeonji Lee, Jiwon Park, Tae Eun Kim\nYaeji Jang, Sooyoun Jo, Hyeonji Lee,\nJiwon Park, Tae Eun Kim, Yaeji Jang",
       };
       const tf =
         currentYear === "2025" && tfByClient2025[client] ? tfByClient2025[client] : "";
 
-      // Shortened description per design, still rendered as a single line
+      // Shortened / overridden description per Figma design
+      const titleOverrides2025 = {
+        "LG Electronics": "Affectionate Intelligence CX design",
+        "CJ CGV & Naver Cloud": "AI-Driven AR Interaction Platform",
+        "Hyundai Motors": "Development of AI-Driven Design Process",
+      };
+
       let description = project;
       if (currentYear === "2025") {
-        if (client === "LG Electronics") description = cutAtWord(project, "CX");
-        if (client === "CJ CGV & Naver Cloud") description = cutAtWord(project, "Platform");
-        if (client === "Hyundai Motors") {
-          description = cutAtWord(project, "Process");
-          // Remove "Exterior" word per request
-          description = description.replace(/\bExterior\b\s*/i, "");
+        if (titleOverrides2025[client]) {
+          description = titleOverrides2025[client];
+        } else if (client === "Ministry of Trade, Industry and Energy") {
+          // Fallback: keep original project title for this client
+          description = project;
         }
       }
 
@@ -165,32 +189,365 @@ export default function Works({ textColor, sectionOn }) {
   }
 
   const INITIAL_YEAR = "2025";
-  const MIN_YEAR = 2020;
-  const inRangeTo2020 = (p) => {
-    const y = Number(p?.year);
-    return Number.isFinite(y) && y >= MIN_YEAR && y <= Number(INITIAL_YEAR);
+  const initialYearNum = Number(INITIAL_YEAR);
+  const isValidYearProject = (p) => {
+    const yStr = String(p?.year ?? "").trim();
+    if (!/^\d{4}$/.test(yStr)) return false;
+    const y = Number(yStr);
+    return Number.isFinite(y) && y <= initialYearNum;
   };
 
-  const projectsInRange = selectedProjects.filter(inRangeTo2020);
-  const visibleProjects = (isExpanded
-    ? projectsInRange
-    : projectsInRange.filter((p) => p.year === INITIAL_YEAR)
-  );
+  // Expanded: show all projects up to INITIAL_YEAR (includes years before 2025).
+  const projectsAll = selectedProjects
+    .filter(isValidYearProject)
+    .sort((a, b) => Number(b.year) - Number(a.year));
+  const initialYearProjects = projectsAll.filter((p) => p.year === INITIAL_YEAR);
+  const collapsedProjects = (initialYearProjects.length > 0 ? initialYearProjects : projectsAll).slice(0, 3);
+  const visibleProjects = isExpanded ? projectsAll : collapsedProjects;
 
-  const hasMore = projectsInRange.some((p) => p.year !== INITIAL_YEAR);
-  const toggleLabel = isExpanded ? (lang === "kr" ? "접기" : "Collapse") : (lang === "kr" ? "더보기" : "More");
+  const hasMore = projectsAll.length > collapsedProjects.length;
+  const toggleAriaLabel = isExpanded
+    ? (lang === "kr" ? "접기" : "Collapse")
+    : (lang === "kr" ? "더보기" : "More");
+
+  const toggleExpanded = () => {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      // When collapsing, return to the top of the Works section so the first rows are visible.
+      if (prev && !next) {
+        window.requestAnimationFrame(() => {
+          document
+            .querySelector("#works")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+      return next;
+    });
+  };
+
+  const renderRow = (p, idx, keyPrefix) => {
+    // Figma: most rows use 160px content height + 32px bottom padding (=192px total).
+    // CJ row uses 137px content height + 32px bottom padding (=169px total).
+    const clientKey = String(p?.client || "").toLowerCase();
+    const isCJ = clientKey === "cj cgv & naver cloud";
+    // Base (non-hover) size should stay at the original 197.33×160 feel.
+    const contentH = 160;
+    const rowH = contentH + 32;
+    const contentHHover = 360;
+    const rowHHover = contentHHover + 32;
+    const hasTwoImages = Array.isArray(p?.images) && p.images.length === 2;
+    // On hover, always collapse to a single "hero" image (matches the intended interaction).
+    const useHeroOnHover = true;
+    const rowKey = `${keyPrefix}-${p.year}-${idx}-${p.title}`;
+    const isHover = hoveredRowKey === rowKey;
+    const mediaCandidates = Array.isArray(p?.images)
+      ? p.images
+          .slice(0, 3)
+          .map((x) => String(x || "").trim())
+          .filter((x) => x.length > 0)
+      : [];
+    const mediaList =
+      p.year === "2025" && p.client === "CJ CGV & Naver Cloud"
+        ? mediaCandidates.slice(0, 2)
+        : mediaCandidates;
+    const heroMedia =
+      isHover && hoveredRowMedia.length > 0 ? hoveredRowMedia[hoveredMediaIndex] : mediaList[0];
+    const heroIsVideo = String(heroMedia || "").toLowerCase().endsWith(".mp4");
+
+    return (
+      <div
+        key={rowKey}
+        onMouseEnter={() => {
+          setHoveredRowKey(rowKey);
+          setHoveredRowMedia(mediaList);
+          setHoveredMediaIndex(0);
+        }}
+        onMouseLeave={() => {
+          setHoveredRowKey(null);
+          setHoveredRowMedia([]);
+          setHoveredMediaIndex(0);
+        }}
+        className={`border-b border-primaryB pt-0 pb-[32px] overflow-hidden transition-[max-height,background-color] duration-300 ease-out ${
+          isHover ? "bg-black/[0.02]" : ""
+        }`}
+        style={{
+          maxHeight: isHover ? `${rowHHover}px` : `${rowH}px`,
+        }}
+      >
+        <div
+          className="flex flex-col lg:flex-row gap-y-4 lg:gap-y-0 lg:gap-x-8 items-stretch transition-[height] duration-300 ease-out"
+          style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+        >
+          {/* Left: Client + Year (296×contentH) */}
+          <div className="lg:basis-[296px] lg:flex-none overflow-hidden">
+            <div className={`${neuehaas.className} tracking-[-0.03em] flex flex-col`}>
+              {/* Title block: pb 5px */}
+              <div className="pb-[5px]">
+                <div className="text-[24px] leading-[1.45] font-medium text-primaryB w-[220px]">
+                  {isCJ ? (
+                    <>
+                      <p className="m-0">CJ CGV &amp; NAVER</p>
+                      <p className="m-0">CLOUD</p>
+                    </>
+                  ) : (
+                    (p.client ? p.client.toUpperCase() : p.project.toUpperCase())
+                  )}
+                </div>
+              </div>
+
+              {/* Year: 16px, light */}
+              <div className="text-[16px] leading-[1.45] font-light text-primaryB">
+                {p.year || ""}
+              </div>
+            </div>
+          </div>
+
+        {/* Middle: meta (≈296px) */}
+        <div className="lg:basis-[296px] lg:flex-none px-1 md:px-3 lg:px-0">
+          <div
+            className={`${pxGrotesk.className} h-full flex flex-col text-[1rem] leading-[1.45]`}
+          >
+            {/* Title + description block (Frame 3 + Frame 2) */}
+            {/* Figma: title→names spacing is 17px */}
+            <div
+              className={`min-w-0 pr-2 lg:pr-4 flex flex-col gap-[17px] w-full max-w-[17.625rem] ${
+                isHover ? "overflow-visible" : "overflow-hidden"
+              }`}
+            >
+              {/* Title: 16px, weight 500, full opacity */}
+              <span
+                className="truncate font-medium"
+                style={
+                  contentFont === "hel"
+                    ? { fontFamily: "Helvetica, Arial, sans-serif" }
+                    : contentFont === "pre"
+                    ? {
+                        fontFamily:
+                          'pretendardR, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                      }
+                    : undefined
+                }
+              >
+                {p.description || ""}
+              </span>
+
+              {/* Expanded body uses the old "names" slot */}
+              {isHover ? (
+                <div
+                  className="opacity-80 text-[1rem] leading-[1.45] whitespace-pre-wrap"
+                  style={
+                    contentFont === "hel"
+                      ? { fontFamily: "Helvetica, Arial, sans-serif" }
+                      : contentFont === "pre"
+                      ? {
+                          fontFamily:
+                            'pretendardR, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                        }
+                      : undefined
+                  }
+                >
+                  {EXPANDED_BODY}
+                </div>
+              ) : (
+                p.tf &&
+                String(p.tf).trim() !== "" && (
+                  <div
+                    className="opacity-70 text-[1rem] leading-[1.45]"
+                    style={
+                      contentFont === "hel"
+                        ? { fontFamily: "Helvetica, Arial, sans-serif" }
+                        : contentFont === "pre"
+                        ? {
+                            fontFamily:
+                              'pretendardR, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                          }
+                        : undefined
+                    }
+                  >
+                    {String(p.tf)
+                      .split(/\n+/)
+                      .filter((line) => line && line.trim().length > 0)
+                      .map((line, i) => {
+                        const lineText = line.trim();
+                        if (!lineText) return null;
+                        return (
+                          <p
+                            key={`${keyPrefix}-${p.year}-${idx}-tf-line-${i}`}
+                            className="m-0 whitespace-nowrap"
+                          >
+                            {lineText}
+                          </p>
+                        );
+                      })}
+                  </div>
+                )
+              )}
+            </div>
+
+            {/* Tags pinned to bottom (Frame 1) */}
+            {!isHover && Array.isArray(p.categories) && p.categories.length > 0 && (
+              <div className="mt-auto pt-[1.5rem] flex flex-wrap gap-[0.625rem]">
+                {[...p.categories]
+                  .sort((a, b) => (a === "Cooperation") - (b === "Cooperation"))
+                  .map((c) => (
+                    <span
+                      key={`${keyPrefix}-${p.year}-${idx}-${c}`}
+                      className={`${pxGrotesk.className} inline-flex items-center justify-center rounded-full border border-primaryB px-[0.9375rem] py-[5px] leading-none text-[0.75rem] text-primaryB`}
+                    >
+                      {c}
+                    </span>
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: image boxes (3-up, ≈624px wide) */}
+        <div className="flex-1 pt-0 lg:pt-0 overflow-hidden">
+          {/* Figma: image grid gap 16px */}
+          <div
+            className={`flex flex-wrap lg:flex-nowrap gap-[1rem] transition-[gap] duration-300 ease-out ${
+              isHover && useHeroOnHover ? "lg:gap-0" : ""
+            }`}
+          >
+            {Array.isArray(p.images) && p.images.length > 0 ? (
+              <>
+                {p.images[0] ? (
+                  <div
+                    className={`w-full bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity,transform] duration-300 ease-out ${
+                      !isHover && hasTwoImages ? "lg:w-[197.33px]" : "lg:w-[197.33px]"
+                    } ${isHover && useHeroOnHover ? "lg:flex-1 lg:w-auto" : ""}`}
+                    style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                  >
+                    {heroIsVideo ? (
+                      <video
+                        key={heroMedia}
+                        src={heroMedia}
+                        className="w-full h-full object-cover"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="metadata"
+                      />
+                    ) : (
+                      <img
+                        key={heroMedia}
+                        src={heroMedia || p.images[0]}
+                        alt={`${p.client || "project"} image 1`}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <GreyPlaceholder
+                    className={`w-full bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                      "lg:w-[197.33px]"
+                    } ${isHover && useHeroOnHover ? "lg:flex-1 lg:w-auto" : ""}`}
+                    style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                  />
+                )}
+
+                {p.images[1] ? (
+                  <div
+                    className={`w-full bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity,transform] duration-300 ease-out ${
+                      "lg:w-[197.33px]"
+                    } ${isHover && useHeroOnHover ? "lg:w-0 lg:max-w-0 lg:opacity-0" : ""}`}
+                    style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                  >
+                    <img
+                      src={p.images[1]}
+                      alt={`${p.client || "project"} image 2`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <GreyPlaceholder
+                    className={`w-full bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                      "lg:w-[197.33px]"
+                    } ${
+                      isHover && useHeroOnHover
+                        ? "lg:w-0 lg:max-w-0 lg:opacity-0"
+                        : ""
+                    }`}
+                    style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                  />
+                )}
+
+                {!(p.year === "2025" && p.client === "CJ CGV & Naver Cloud") &&
+                  (p.images[2] ? (
+                    String(p.images[2]).toLowerCase().endsWith(".mp4") ? (
+                      <div
+                        className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                          isHover && useHeroOnHover
+                            ? "lg:w-0 lg:max-w-0 lg:opacity-0"
+                            : "lg:opacity-100"
+                        }`}
+                        style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                      >
+                        <video
+                          src={p.images[2]}
+                          className="w-full h-full object-cover"
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="metadata"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                          isHover && useHeroOnHover
+                            ? "lg:w-0 lg:max-w-0 lg:opacity-0"
+                            : "lg:opacity-100"
+                        }`}
+                        style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                      >
+                        <img
+                          src={p.images[2]}
+                          alt={`${p.client || "project"} image 3`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )
+                  ) : (
+                    <GreyPlaceholder
+                      className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                        isHover && useHeroOnHover ? "lg:w-0 lg:max-w-0 lg:opacity-0" : ""
+                      }`}
+                      style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                    />
+                  ))}
+              </>
+            ) : (
+              <>
+                <GreyPlaceholder className="w-full lg:w-[197.33px]" />
+                <GreyPlaceholder className="w-full lg:w-[197.33px]" />
+                {!(p.year === "2025" && p.client === "CJ CGV & Naver Cloud") && (
+                  <GreyPlaceholder className="w-full lg:w-[197.33px]" />
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      </div>
+    );
+  };
 
   return (
     <>
       <div
-        className={`text-primaryB pt-[12%] pb-[80%] ${lang === 'kr' ? 'lg:pt-[4dvh]' : 'lg:pt-[8%]'} lg:pb-[10%] lg:px-[5.5vw] w-full h-full font-[400] relative overflow-hidden`}
+        ref={rootRef}
+        className="text-primaryB w-full font-[400] relative py-8 lg:py-10 px-4"
       >
         {/* Font toggle controls (hel / pre) on the right */}
-        <div className="hidden lg:flex absolute right-[5.5vw] top-10 z-[550] gap-2 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-primaryB/20 shadow-sm">
+        <div className="hidden lg:flex absolute right-20 top-10 z-[550] gap-2 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-primaryB/20 shadow-sm">
           <button
             type="button"
             onClick={() => setContentFont("hel")}
-            className={`${pxGrotesk.className} border border-primaryB/60 px-2.5 py-1 rounded-full text-[0.8vw] ${contentFont === "hel" ? "bg-primaryB text-white" : "text-primaryB"}`}
+            className={`${pxGrotesk.className} border border-primaryB/60 px-2.5 py-1 rounded-full text-[0.75rem] ${contentFont === "hel" ? "bg-primaryB text-white" : "text-primaryB"}`}
             aria-pressed={contentFont === "hel"}
           >
             hel
@@ -198,201 +555,81 @@ export default function Works({ textColor, sectionOn }) {
           <button
             type="button"
             onClick={() => setContentFont("pre")}
-            className={`${pxGrotesk.className} border border-primaryB/60 px-2.5 py-1 rounded-full text-[0.8vw] ${contentFont === "pre" ? "bg-primaryB text-white" : "text-primaryB"}`}
+            className={`${pxGrotesk.className} border border-primaryB/60 px-2.5 py-1 rounded-full text-[0.75rem] ${contentFont === "pre" ? "bg-primaryB text-white" : "text-primaryB"}`}
             aria-pressed={contentFont === "pre"}
           >
             pre
           </button>
         </div>
-        {/* Subtle bottom-to-top lavender gradient shown only when Works is active */}
-        <motion.div
-          aria-hidden="true"
-          initial={false}
-          animate={{
-            opacity: sectionOn === "works" ? 1 : 0,
-            y: sectionOn === "works" ? 0 : 16,
-          }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="pointer-events-none absolute bottom-0 left-0 w-full h-[34vh] z-0"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(193,184,251,0.14) 0%, rgba(193,184,251,0) 80%)",
-          }}
-        />
         {visibleProjects.length > 0 ? (
-          <div className="relative z-10 text-primaryB bg-[rgba(240,240,236,0.55)] backdrop-blur-[2px]">
-            {/* Header row */}
-            <div className="pt-3 lg:pt-4">
-              <motion.div
-                animate={headerControls}
-                className={`${neuehaas.className} tracking-[-0.03em] leading-none whitespace-nowrap text-[6.8vw] md:text-[4.6vw] lg:text-[2.8vw]`}
-              >
-                {selectedHeaderRaw}
-              </motion.div>
-              <motion.div
-                animate={lineControls}
-                className="mt-2 lg:mt-3 h-[2px] bg-primaryB origin-left"
-              />
-            </div>
-
-            <motion.div animate={contentControls}>
-              {visibleProjects.map((p, idx) => (
-                <div
-                  key={`${p.year}-${idx}-${p.title}`}
-                  className="border-b-2 border-primaryB pt-3 pb-10 lg:pt-4 lg:pb-14"
+          <div className="relative z-10 text-primaryB">
+            <div
+              className={`mx-auto w-[80rem] ${isExpanded ? "h-auto" : "h-[52.5rem]"} flex flex-col`}
+              style={{ backgroundColor: "#f0f0ec" }}
+            >
+              {/* Header row */}
+              <div className="h-[3.875rem] border-b border-primaryB flex items-end pb-4">
+                <motion.div
+                  animate={headerControls}
+                  className={`${neuehaas.className} tracking-[-0.03em] leading-none whitespace-nowrap text-[1.75rem] md:text-[1.875rem] lg:text-[2rem]`}
                 >
-                  <div className="grid grid-cols-12 gap-y-4 lg:gap-y-8 gap-x-5 md:gap-x-6 lg:gap-x-8 items-stretch">
-                  {/* Left: Title + Year */}
-                  <div className="col-span-12 lg:col-span-3 pt-2 lg:pt-3">
-                    <div className={`${neuehaas.className} tracking-[-0.03em] leading-[1.05] h-full flex flex-col`}>
-                      <div className="text-[5.8vw] md:text-[4.1vw] lg:text-[1.9vw]">
-                        {p.client ? p.client.toUpperCase() : p.project.toUpperCase()}
-                      </div>
-                      <div className={`${pxGrotesk.className} text-[4.8vw] md:text-[3.4vw] lg:text-[1.25vw] mt-1`}>
-                        {p.year || ""}
-                      </div>
+                  {selectedHeaderRaw}
+                </motion.div>
+              </div>
 
-                      {/* Single keyword directly under the year (bottom-left of the year block) */}
-                      {Array.isArray(p.categories) && p.categories.length > 0 && (
-                        <div className="mt-3 lg:mt-auto flex flex-wrap gap-2">
-                          {[...p.categories]
-                            .sort((a, b) => (a === "Cooperation") - (b === "Cooperation"))
-                            .map((c) => (
-                              <span
-                                key={c}
-                                className={`${pxGrotesk.className} inline-flex items-center rounded-full border border-primaryB px-2.5 py-1 leading-[1] text-[2.8vw] md:text-[1.9vw] lg:text-[0.78vw] text-primaryB`}
-                              >
-                                {c}
-                              </span>
-                            ))}
-                        </div>
-                      )}
-                    </div>
-                          </div>
-                        
-                  {/* Middle: meta */}
-                  <div className="col-span-12 lg:col-span-3 pt-2 lg:pt-3 px-1 md:px-3 lg:px-4">
-                    {/* Details: Brief (single line) + TF (wrapped), with label column */}
-                    <div className={`${pxGrotesk.className} h-full flex flex-col gap-2 text-[3vw] md:text-[2.2vw] lg:text-[0.95vw] leading-[1.2]`}>
-                      <div className="min-w-0 pr-2 lg:pr-4 lg:pb-2 overflow-hidden">
+              <div className="flex-1 flex flex-col">
+                <motion.div
+                  animate={contentControls}
+                  className={`relative ${isExpanded ? "flex-none overflow-visible" : "flex-1 overflow-y-auto"} pt-[1rem] space-y-[1rem]`}
+                >
+                  {visibleProjects.map((p, idx) => renderRow(p, idx, "list"))}
+                  {(hasMore || isExpanded) && (
+                    <div
+                      className={`pt-5 pb-6 flex justify-center sticky ${
+                        isExpanded ? "bottom-6" : "bottom-4"
+                      } z-20`}
+                    >
+                      <button
+                        type="button"
+                        onClick={toggleExpanded}
+                        aria-label={toggleAriaLabel}
+                        className={`${pxGrotesk.className} group border-2 border-primaryB w-12 h-12 lg:w-14 lg:h-14 rounded-full flex items-center justify-center text-primaryB hover:bg-primaryB hover:text-primaryW transition-colors`}
+                      >
                         <span
-                          className="opacity-70 truncate"
-                          style={
-                            contentFont === "hel"
-                              ? { fontFamily: 'Helvetica, Arial, sans-serif' }
-                              : contentFont === "pre"
-                              ? { fontFamily: 'pretendardR, Pretendard, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif' }
-                              : undefined
-                          }
+                          aria-hidden="true"
+                          className={`transition-transform duration-300 ease-out ${
+                            isExpanded ? "rotate-180" : "rotate-0"
+                          }`}
                         >
-                          {p.description || ""}
+                          <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="block relative -top-0.5"
+                          >
+                            <path
+                              d="M6 9L12 15L18 9"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
                         </span>
-                      </div>
-                      {p.tf && String(p.tf).trim() !== "" && (
-                        <div className="min-w-0 mt-1 lg:mt-auto">
-                          <span className="opacity-70 text-[3vw] md:text-[2.2vw] lg:text-[0.95vw] leading-[1.12]">
-                            <span style={contentFont === "hel" ? { fontFamily: 'Helvetica, Arial, sans-serif' } : (contentFont === "pre" ? { fontFamily: 'pretendardR, Pretendard, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif' } : undefined)}>
-                            {String(p.tf)
-                              .split(/,\s*|\n+/)
-                              .filter((n) => n && n.trim().length > 0)
-                              .map((name, i, arr) => (
-                                <span key={`${name}-${i}`}>
-                                  <span className="whitespace-nowrap">{name.trim()}</span>
-                                  {i < arr.length - 1 ? ", " : ""}
-                                </span>
-                              ))}
-                            </span>
-                          </span>
-                        </div>
-                      )}
+                      </button>
                     </div>
-                  </div>
-
-                  {/* Right: image boxes (grey-toned) */}
-                  <div className="col-span-12 lg:col-span-6 pt-2 lg:pt-3">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-[6px] lg:gap-[10px]">
-                      {/* Bigger boxes like reference: taller aspect + a bit more presence */}
-                      {Array.isArray(p.images) && p.images.length > 0 ? (
-                        <>
-                          {/*
-                            CJ(2025): hide the 3rd slot entirely.
-                            Keep the 3-col grid so the first two boxes don't change size/position.
-                          */}
-                          {p.images[0] ? (
-                            <img
-                              src={p.images[0]}
-                              alt={`${p.client || "project"} image 1`}
-                              className="w-full rounded-sm aspect-[16/10] object-cover"
-                            />
-                          ) : (
-                            <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
-                          )}
-
-                          {p.images[1] ? (
-                            <img
-                              src={p.images[1]}
-                              alt={`${p.client || "project"} image 2`}
-                              className="w-full rounded-sm aspect-[16/10] object-cover"
-                            />
-                          ) : (
-                            <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
-                          )}
-
-                          {!(p.year === "2025" && p.client === "CJ CGV & Naver Cloud") &&
-                            (p.images[2] ? (
-                              String(p.images[2]).toLowerCase().endsWith(".mp4") ? (
-                                <video
-                                  src={p.images[2]}
-                                    className="w-full rounded-sm aspect-[16/10] object-cover"
-                                  autoPlay
-                                  muted
-                                  loop
-                                  playsInline
-                                  preload="metadata"
-                                />
-                              ) : (
-                                <img
-                                  src={p.images[2]}
-                                  alt={`${p.client || "project"} image 3`}
-                                    className="w-full rounded-sm aspect-[16/10] object-cover"
-                                />
-                              )
-                            ) : (
-                              <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
-                            ))}
-                        </>
-                      ) : (
-                        <>
-                          <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
-                          <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
-                          {!(p.year === "2025" && p.client === "CJ CGV & Naver Cloud") && (
-                            <GreyPlaceholder className="w-full rounded-sm aspect-[16/10]" />
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                  )}
+                </motion.div>
               </div>
-              ))}
-            </motion.div>
-
-            {hasMore && (
-              <div className="pt-10 pb-14 lg:pt-12 lg:pb-16 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => setIsExpanded((v) => !v)}
-                  className={`${pxGrotesk.className} border-2 border-primaryB px-6 py-3 lg:px-7 lg:py-3 rounded-full text-[3.2vw] md:text-[2.1vw] lg:text-[0.9vw] text-primaryB hover:bg-primaryB hover:text-primaryW transition-colors`}
-                >
-                  {toggleLabel}
-                </button>
-              </div>
-            )}
+            </div>
           </div>
         ) : (
           <div>Loading...</div>
         )}
       </div>
+
     </>
   );
 }

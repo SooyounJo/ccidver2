@@ -57,6 +57,21 @@ export default function Navmobile({ sectionOn }) {
         {/* <HeaderW isOpen={isOpen} /> */}
         <li className="text-center">
           <a
+            href="#cover"
+            className="scroll-smooth"
+            onClick={(e) => {
+              e.preventDefault();
+              document
+                .querySelector("#cover")
+                ?.scrollIntoView({ behavior: "smooth" });
+              closeMenu(); // 메뉴 닫기
+            }}
+          >
+            intro
+          </a>
+        </li>
+        <li className="text-center">
+          <a
             href="#about"
             className="scroll-smooth"
             onClick={(e) => {

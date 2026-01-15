@@ -7,7 +7,14 @@ export default function GradualBlurTop({ sectionOn }) {
     "linear-gradient(to bottom, rgba(193,184,251,0.22) 0%, rgba(193,184,251,0.12) 42%, rgba(240,240,236,0) 100%)";
   const coverBoost =
     "linear-gradient(to bottom, rgba(193,184,251,0.14) 0%, rgba(193,184,251,0.08) 42%, rgba(15,15,19,0) 100%)";
-  const background = sectionOn === "cover" ? coverBoost : baseGradient;
+  const worksNeutral =
+    "linear-gradient(to bottom, rgba(240,240,236,0.9) 0%, rgba(240,240,236,0.7) 42%, rgba(240,240,236,0) 100%)";
+  const background =
+    sectionOn === "cover"
+      ? coverBoost
+      : sectionOn === "works"
+      ? worksNeutral
+      : baseGradient;
 
   return (
     <div

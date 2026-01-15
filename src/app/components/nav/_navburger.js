@@ -46,6 +46,21 @@ export default function Nav({ textColor }) {
       >
         <li className="mx-3">
           <a
+            href="#cover"
+            className="transition-all duration-300 hover:filter lg:hover:blur-md scroll-smooth"
+            onClick={(e) => {
+              e.preventDefault();
+              document
+                .querySelector("#cover")
+                ?.scrollIntoView({ behavior: "smooth" });
+                closeMenu(); // 메뉴 닫기
+            }}
+          >
+            Intro
+          </a>
+        </li>
+        <li className="mx-3">
+          <a
             href="#about"
             className="transition-all duration-300 hover:filter lg:hover:blur-md scroll-smooth"
             onClick={(e) => {
