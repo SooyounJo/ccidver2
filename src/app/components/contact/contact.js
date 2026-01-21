@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import "./contact.css";
 import { sheetsStatic } from "@/app/data/sheetsStatic";
+import "./contact.css";
 export default function Contact({ borderRadius, sectionOn }) {
   const [aboutInfo, setAboutInfo] = useState(sheetsStatic?.about || null);
 
@@ -18,8 +18,8 @@ export default function Contact({ borderRadius, sectionOn }) {
     let tgY = 0;
 
     function move() {
-      curX += (tgX - curX) / 10;
-      curY += (tgY - curY) / 10;
+      curX += (tgX - curX) / 20;
+      curY += (tgY - curY) / 20;
       interBubble.style.transform = `translate(${Math.round(
         curX
       )}px, ${Math.round(curY)}px)`;
@@ -41,7 +41,6 @@ export default function Contact({ borderRadius, sectionOn }) {
 
   return (
     <div
-      // style={{ borderRadius: `${borderRadius}px` }}
       className={`transition-all duration-[1000ms] ease-out absolute top-0 left-0 w-full h-full gradient-bg`}
     >
       <svg xmlns="http://www.w3.org/2000/svg">
@@ -65,10 +64,10 @@ export default function Contact({ borderRadius, sectionOn }) {
         <div className="interactive"></div>
       </div>
 
-      {/* purple tone layer */}
+      {/* tone layer (보라 편향 줄이고, 다색 블랍이 잘 보이도록) */}
       <div
-        className="bg-[rgba(164,106,251,0.3)] absolute top-0 left-0 w-full h-full"
-        style={{ mixBlendMode: "darker" }}
+        className="bg-[rgba(255,255,255,0.06)] absolute top-0 left-0 w-full h-full"
+        style={{ mixBlendMode: "soft-light" }}
       ></div>
 
       {/* gradient layer */}
@@ -84,14 +83,14 @@ export default function Contact({ borderRadius, sectionOn }) {
 
         <div className="z-[1]">
           <a
-          href={`mailto:${aboutInfo?.[0]?.[2] || ""}`}
-          className="leading-snug pb-1 relative group text-primaryB hover:text-[#000] transition-colors duration-1800"
-        >
-          {aboutInfo?.[0]?.[2] || "Loading..."}
-          <span
-            className="absolute bottom-0 left-0 w-0 h-0.5 bg-primaryB transition-all duration-[880ms] ease-in-out group-hover:w-full group-hover:bg-[#000]"
-          ></span>
-        </a>
+            href={`mailto:${aboutInfo?.[0]?.[2] || ""}`}
+            className="leading-snug pb-1 relative group text-primaryB hover:text-[#000] transition-colors duration-1800"
+          >
+            {aboutInfo?.[0]?.[2] || "Loading..."}
+            <span
+              className="absolute bottom-0 left-0 w-0 h-0.5 bg-primaryB transition-all duration-[880ms] ease-in-out group-hover:w-full group-hover:bg-[#000]"
+            ></span>
+          </a>
         </div>
       </div>
     </div>

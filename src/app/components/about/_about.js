@@ -1,51 +1,116 @@
-"use client"
-import { useEffect, useState } from 'react';
+"use client";
 
-export default function About() {
-  const [aboutInfo, setAboutInfo] = useState([]);
+import { useEffect, useState } from "react";
+import { ABOUT_SECTIONS } from "./aboutData";
+import { pxGrotesk } from "@/fonts/fonts";
+
+export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
+  const [displayId, setDisplayId] = useState(activeId);
+  const [isFade, setIsFade] = useState(true);
 
   useEffect(() => {
-    const fetchAboutData = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NODE_ENV === "production" ? "" : ""}/api/sheets`
-        );
-        if (!res.ok) {
-          throw new Error(`Failed to fetch /api/sheets (status: ${res.status})`);
-        }
-        const data = await res.json();
-        setAboutInfo(Array.isArray(data?.about) ? data.about : []); // about 시트 데이터 
-      } catch (error) {
-        console.error('Error fetching about data:', error);
-        setAboutInfo([]);
-      }
-    };
+    setIsFade(false);
+    const timer = setTimeout(() => {
+      setDisplayId(activeId);
+      setIsFade(true);
+    }, 250);
 
-    fetchAboutData();
-  }, []);
+    return () => clearTimeout(timer);
+  }, [activeId]);
+
+  const titleSection =
+    ABOUT_SECTIONS.find((section) => section.id === activeId) ||
+    ABOUT_SECTIONS[0];
+
+  const contentSection =
+    ABOUT_SECTIONS.find((section) => section.id === displayId) ||
+    ABOUT_SECTIONS[0];
+
+  const safeParagraphs = Array.isArray(contentSection.paragraphs)
+    ? contentSection.paragraphs
+    : [];
+
+  const paragraphs2 = [safeParagraphs[0] || "", safeParagraphs[1] || ""].filter(
+    Boolean
+  );
 
   return (
-    <div className="flex items-center justify-center w-full h-full pt-10">
-      <div>
-        <p className="font-[600] leading-tight text-[5vw] sm:text-[4vw] lg:text-[2vw] mb-[3vh] border-b-[1px] pb-1 md:pb-3 mb-4 xl:mb-6 2xl:mb-10 4xl:mb-20">Who We Are</p>
-        <ul>
-          {aboutInfo.length > 0 ? (
-            aboutInfo.map((item, index) => (
-              <li key={index} className="lg:flex gap-4 md:py-4 lg:py-4 mb-8 lg:mb-0 xl:mb-12">
-                <div className="flex flex-col lg:flex-row gap-2 md:gap-6">
-                  {/* 영문 텍스트 */}
-                  <h1 className="flex-1 font-[500] leading-tight text-[5vw] sm:text-[4vw] lg:text-[2vw]">{item[0]}</h1>
-                  {/* 한글 텍스트 */}
-                  <p className="font-founders flex-[0.9] font-[500] leading-[1.85] text-[3vw] sm:text-[1.9vw] lg:text-[1vw] lg:ml-12 4xl:ml-28">
-                    {item[1]}
-                  </p>
-                </div>
-              </li>
-            ))
+    <div className={`w-full relative z-10 ${pxGrotesk.className}`}>
+      <div className="flex flex-col lg:flex-row items-start lg:gap-[2vw]">
+        <div className="w-full lg:w-[28%]">
+          {aboutStyle === 1 ? (
+            <h2 className="text-left font-[500] leading-tight text-[28px] tracking-[-0.03em]">
+              {titleSection.title}
+            </h2>
           ) : (
-            <p>Loading...</p>
+            <ul className="flex flex-col gap-2">
+              {ABOUT_SECTIONS.map((section) => {
+                const isActive = section.id === activeId;
+                return (
+                  <li
+                    key={section.id}
+                    className={`text-left leading-tight text-[28px] tracking-[-0.03em] ${
+                      isActive ? "font-[500] text-[#0f0f13]" : "font-[500] text-[#9D9C9C]"
+                    }`}
+                  >
+                    {section.title}
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        </ul>
+        </div>
+
+        <div
+          className={`w-full lg:w-[72%] transition-opacity duration-300 ease-in-out ${
+            isFade ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+            {paragraphs2.map((paragraph, index) => (
+              <p key={index} className="text-[16px] leading-[1.45]">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+
+          <div className={`w-full lg:pb-[5vh] ${displayId === "who" ? "mt-10" : "mt-14"}`}>
+            {displayId === "who" ? (
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                  <img src="/img/about_1.png" alt="About 1" className="object-cover w-full h-full" />
+                </div>
+                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                  <img src="/img/about_2.png" alt="About 2" className="object-cover w-full h-full" />
+                </div>
+              </div>
+            ) : displayId === "sectors" ? (
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                  <img src="/img/about_3.png" alt="About 3" className="w-full h-full object-cover" />
+                </div>
+                <div className="hidden md:block" />
+              </div>
+            ) : (
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                  <img
+                    src="/img/about_4.png"
+                    alt="About 4"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </div>
+                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                  <img
+                    src="/img/about_5.png"
+                    alt="About 5"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

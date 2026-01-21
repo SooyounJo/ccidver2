@@ -1,6 +1,6 @@
 "use client";
 
-import { neuehaas } from "@/fonts/fonts";
+import { pxGrotesk } from "@/fonts/fonts";
 import { useState, useEffect } from "react";
 import { sheetsStatic } from "@/app/data/sheetsStatic";
 
@@ -8,24 +8,21 @@ export default function Cover() {
   const [mainText, setMainText] = useState(null);
   const [typedWords, setTypedWords] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [isTypingComplete, setIsTypingComplete] = useState(false);
   const [startWaveAnim, setStartWaveAnim] = useState(false);
   const [activeWords, setActiveWords] = useState([]);
 
   const WAVE_ANIMATION_DURATION = 8000; // ms, matches .wave-text animation duration
 
   useEffect(() => {
-    // Static data (no API)
     const flatText = (sheetsStatic?.main || [])
       .map((row) => row?.[0])
       .filter(Boolean);
-        setMainText(flatText);
-        setTypedWords(flatText.map(() => ""));
+    setMainText(flatText);
+    setTypedWords(flatText.map(() => ""));
   }, []);
 
   useEffect(() => {
     if (!mainText || currentWordIndex >= mainText.length) {
-      setIsTypingComplete(true);
       setTimeout(() => {
         setStartWaveAnim(true);
       }, 1000);
@@ -59,7 +56,6 @@ export default function Cover() {
   useEffect(() => {
     if (startWaveAnim && mainText && mainText[1]) {
       setActiveWords([0]); // Start wave on typedWords[1]
-      // After wave effect on typedWords[1], trigger wave on typedWords[0]
       setTimeout(() => {
         setActiveWords([0, 1]);
       }, WAVE_ANIMATION_DURATION);
@@ -76,72 +72,82 @@ export default function Cover() {
     return () => clearTimeout(timeout);
   }, []);
 
-  const scaleStyle = startAnim ? { 
-    scale: 0.97,
-    transformOrigin: 'left center',
-    transition: "scale 18s ease-out" 
-  } : { transformOrigin: 'left center' };
+  const scaleStyle = startAnim
+    ? {
+        scale: 0.97,
+        transformOrigin: "left center",
+        transition: "scale 18s ease-out",
+      }
+    : { transformOrigin: "left center" };
 
   return (
-    <div className={`flex flex-col w-full h-full lg:pt-[38dvh] pt-[28vh] px-6 lg:px-10`}>
-      <div className="text-center lg:text-left relative inline-block w-full lg:h-[24vw] h-[26vw] lg:h-[3.8vw] leading-[1.1] lg:leading-[1.3] text-[7.5vw] lg:text-[3vw]">
+    <div className="relative flex flex-col w-full h-full lg:pt-[28dvh] pt-[20vh] px-0">
+      <div className="text-center lg:text-left relative inline-block w-full lg:h-[24vw] h-[26vw] lg:h-[3.8vw] leading-[1.1] lg:leading-[1.3] text-[7.5vw] lg:text-[3vw] text-[#0f0f13]">
         <pre
-          className={`${neuehaas.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-hidden relative ${
+          className={`${pxGrotesk.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-hidden relative ${
             currentWordIndex === 0 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[0] ? (
-            <span className={`wave-text ${activeWords.includes(1) ? 'active' : ''}`}>
+            <span className={`wave-text ${activeWords.includes(1) ? "active" : ""}`}>
               {typedWords[0]}
             </span>
           ) : (
-            <span className="first-part" style={{ opacity: 1 }}>{typedWords[0]}</span>
+            <span className="first-part" style={{ opacity: 1, color: "#0f0f13" }}>
+              {typedWords[0]}
+            </span>
           )}
         </pre>
         <p
-          className={`${neuehaas.className} tracking-[-1px] hidden lg:block overflow-hidden relative ${
+          className={`${pxGrotesk.className} tracking-[-1px] hidden lg:block overflow-hidden relative ${
             currentWordIndex === 0 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[0] ? (
-            <span className={`wave-text ${activeWords.includes(1) ? 'active' : ''}`}>
+            <span className={`wave-text ${activeWords.includes(1) ? "active" : ""}`}>
               {typedWords[0]}
             </span>
           ) : (
-            <span className="first-part" style={{ opacity: 1 }}>{typedWords[0]}</span>
+            <span className="first-part" style={{ opacity: 1, color: "#0f0f13" }}>
+              {typedWords[0]}
+            </span>
           )}
         </p>
       </div>
 
-      <div className="text-center lg:text-left relative inline-block w-full lg:h-[24vw] h-[26vw] lg:h-[3.8vw] leading-[1.1] lg:leading-[1.3] text-[7.5vw] lg:text-[3vw]">
+      <div className="text-center lg:text-left relative inline-block w-full lg:h-[24vw] h-[26vw] lg:h-[3.8vw] leading-[1.1] lg:leading-[1.3] text-[7.5vw] lg:text-[3vw] text-white">
         <pre
-          className={`${neuehaas.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-hidden relative ${
+          className={`${pxGrotesk.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-hidden relative ${
             currentWordIndex === 1 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[1] ? (
-            <span className={`wave-text ${activeWords.includes(0) ? 'active' : ''}`}>
+            <span className={`wave-text ${activeWords.includes(0) ? "active" : ""}`}>
               {typedWords[1]}
             </span>
           ) : (
-            <span className="first-part" style={{ opacity: 1 }}>{typedWords[1]}</span>
+            <span className="first-part" style={{ opacity: 1 }}>
+              {typedWords[1]}
+            </span>
           )}
         </pre>
         <p
-          className={`${neuehaas.className} tracking-[-1px] hidden lg:block overflow-hidden relative ${
+          className={`${pxGrotesk.className} tracking-[-1px] hidden lg:block overflow-hidden relative ${
             currentWordIndex === 1 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[1] ? (
-            <span className={`wave-text ${activeWords.includes(0) ? 'active' : ''}`}>
+            <span className={`wave-text ${activeWords.includes(0) ? "active" : ""}`}>
               {typedWords[1]}
             </span>
           ) : (
-            <span className="first-part" style={{ opacity: 1 }}>{typedWords[1]}</span>
+            <span className="first-part" style={{ opacity: 1 }}>
+              {typedWords[1]}
+            </span>
           )}
         </p>
       </div>

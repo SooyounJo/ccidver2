@@ -1,9 +1,8 @@
 "use client";
 
 export default function GradualBlurTop({ sectionOn }) {
-  // Blur only (neutral) behind the nav.
-  const background =
-    "linear-gradient(to bottom, rgba(240,240,236,0.9) 0%, rgba(240,240,236,0.7) 42%, rgba(240,240,236,0) 100%)";
+  // Blur only (no bright gradient fill).
+  const background = "transparent";
 
   return (
     <div

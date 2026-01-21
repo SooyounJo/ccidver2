@@ -7,7 +7,8 @@ import Nav from "./components/nav/nav";
 import Navmobile from "./components/nav/navmobile";
 
 import Cover from "./components/landing/cover";
-import AboutPager from "./components/about/AboutPager";
+import LiquidBackground from "./components/landing/liquidBackground";
+import AboutIntro from "./components/about/_about";
 import Works from "./components/works/works";
 import Members from "./components/members";
 import Contact from "./components/contact/contact";
@@ -16,6 +17,9 @@ import GradualBlurTop from "./components/common/GradualBlurTop";
 
 export default function HomeClient() {
   const mainRef = useRef(null);
+  const currentSectionRef = useRef("cover");
+  const lastStepTimeRef = useRef(0);
+  const aboutLockTimeRef = useRef(0);
   const BASE_BG = "#f0f0ec"; // 기본 라이트(전체)
   const BASE_TEXT = "#0f0f13"; // 기본 블랙(전체)
   const BASE_BG_RGB = { r: 240, g: 240, b: 236 };
@@ -30,7 +34,12 @@ export default function HomeClient() {
   const [membersBlend, setMembersBlend] = useState(0); // 0..1 (People 섹션만)
   const [borderRadius, setBorderRadius] = useState(9999); // 초기값: rounded-full
   const [sectionOn, setSectionOn] = useState("cover");
+  const [activeAboutId, setActiveAboutId] = useState("who");
+  const [isAboutLocked, setIsAboutLocked] = useState(false);
+  const [colorPalette] = useState(2);
+  const [aboutStyle] = useState(2);
   const [aboutInfo, setAboutInfo] = useState(sheetsStatic?.about || []);
+  const ABOUT_ORDER = ["who", "sectors", "methodology"];
 
   useEffect(() => {
     setAboutInfo(sheetsStatic?.about || []);
@@ -43,17 +52,82 @@ export default function HomeClient() {
     const sections = mainEl.querySelectorAll("section");
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setSectionOn(entry.target.id); // 보이는 섹션의 ID를 저장
+        if (!entry.isIntersecting) return;
+
+        const key = entry.target.id;
+        if (key === currentSectionRef.current) return;
+
+        currentSectionRef.current = key;
+        setSectionOn(key); // 보이는 섹션의 ID를 저장
+
+        if (key === "about") {
+          setActiveAboutId("who");
+          setIsAboutLocked(true);
+          aboutLockTimeRef.current = Date.now();
+          lastStepTimeRef.current = Date.now();
+        } else {
+          setIsAboutLocked(false);
         }
       },
-      { threshold: 0.1, root: mainEl } // main 스크롤 기준
+      { threshold: 0.4, root: mainEl }
     );
 
     sections.forEach((section) => observer.observe(section));
 
     return () => sections.forEach((section) => observer.unobserve(section));
   }, []);
+
+  useEffect(() => {
+    const mainEl = mainRef.current;
+    if (!mainEl) return;
+
+    const handleWheel = (e) => {
+      if (sectionOn !== "about") return;
+      if (!isAboutLocked) return;
+
+      const delta = e.deltaY;
+      if (delta === 0) return;
+
+      const now = Date.now();
+      if (now - aboutLockTimeRef.current < 400) {
+        e.preventDefault();
+        return;
+      }
+      if (now - lastStepTimeRef.current < 400) {
+        e.preventDefault();
+        return;
+      }
+
+      const currentIndex = ABOUT_ORDER.indexOf(activeAboutId);
+      const lastIndex = ABOUT_ORDER.length - 1;
+
+      if (delta > 0) {
+        if (currentIndex < lastIndex) {
+          e.preventDefault();
+          lastStepTimeRef.current = now;
+          setActiveAboutId(ABOUT_ORDER[currentIndex + 1]);
+        } else {
+          lastStepTimeRef.current = now;
+          setIsAboutLocked(false);
+        }
+        return;
+      }
+
+      if (delta < 0) {
+        if (currentIndex > 0) {
+          e.preventDefault();
+          lastStepTimeRef.current = now;
+          setActiveAboutId(ABOUT_ORDER[currentIndex - 1]);
+        } else {
+          lastStepTimeRef.current = now;
+          setIsAboutLocked(false);
+        }
+      }
+    };
+
+    mainEl.addEventListener("wheel", handleWheel, { passive: false });
+    return () => mainEl.removeEventListener("wheel", handleWheel);
+  }, [ABOUT_ORDER, activeAboutId, isAboutLocked, sectionOn]);
 
   // Smooth background transition when entering/leaving the People section (no hard cut, no flicker).
   useEffect(() => {
@@ -140,16 +214,28 @@ export default function HomeClient() {
 
       <div
         style={{
-          transition: "top 0.5s ease-in-out, opacity 3s ease-in-out",
+          transition: "opacity 1.5s ease-in-out",
           opacity: sectionOn === "cover" ? "1" : "0",
-          top: sectionOn === "cover" ? "0" : "-100%",
+          top: 0,
+          visibility: sectionOn === "cover" || sectionOn === "about" ? "visible" : "hidden",
         }}
-        className="left-0 fixed bg-[url('/img/bgt.png')] bg-repeat bg-contain bg-center w-full h-[118dvh]"
+        className="left-0 fixed z-[-5] bg-[url('/img/bgt.png')] bg-repeat bg-contain bg-center w-full h-[118dvh]"
       />
+      <div
+        style={{
+          transition: "opacity 1.5s ease-in-out",
+          opacity: sectionOn === "cover" ? 1 : 0,
+          top: 0,
+          visibility: sectionOn === "cover" ? "visible" : "hidden",
+        }}
+        className="left-0 fixed z-[-4] w-full h-[118dvh] pointer-events-none"
+      >
+        <LiquidBackground colorPalette={colorPalette} />
+      </div>
       {/* Base background layer */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0"
+        className="pointer-events-none fixed inset-0 z-[-10]"
         style={{ background: BASE_BG }}
       />
       <main
@@ -163,29 +249,66 @@ export default function HomeClient() {
       >
         <section
           id="cover"
-          className="relative z-10 w-[100%] h-[100%] snap-start flex items-center justify-center"
+          className="relative z-10 w-[100%] h-[100%] snap-start flex items-start justify-start"
         >
-          <Cover textColor={BASE_TEXT} />
+          <div className="relative z-10 w-full max-w-[80rem] px-4 mx-auto">
+            <Cover textColor={BASE_TEXT} />
+          </div>
+          <div className="absolute bottom-[-2vh] left-0 w-full h-[12vh] pointer-events-none z-0 flex">
+            <div
+              className="w-[44.27%] h-full"
+              style={{
+                background:
+                  "linear-gradient(to top, rgba(240, 240, 237, 0.7) 0%, rgba(240, 240, 237, 0.3) 50%, rgba(240, 240, 237, 0.12) 80%, transparent 100%)",
+              }}
+            />
+            <div
+              className="w-[55.73%] h-full"
+              style={{
+                background:
+                  "linear-gradient(to top, rgba(240, 240, 237, 0.7) 0%, rgba(240, 240, 237, 0.3) 50%, rgba(240, 240, 237, 0.12) 80%, transparent 100%)",
+              }}
+            />
+          </div>
         </section>
         <section
           id="about"
-          className="relative z-10 w-[100%] h-[100dvh] snap-start"
+          data-section="about"
+          className="relative z-10 w-[100%] h-[100dvh] snap-start overflow-hidden pb-[26vh] lg:pb-[30vh] flex justify-center items-start"
         >
-          <AboutPager sectionOn={sectionOn} scrollRootRef={mainRef} />
+          <div
+            className="hidden lg:block absolute left-0 top-0 bottom-0 right-0 z-0"
+            style={{
+              background: "linear-gradient(180deg, #F0F0ED 54.58%, #E0E0FF 100%)",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute bottom-0 left-0 w-full h-[22vh] pointer-events-none z-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(240, 240, 237, 0.2) 0%, rgba(226, 226, 255, 0.55) 55%, rgba(226, 226, 255, 0.9) 100%)",
+            }}
+          />
+          <div className="relative z-10 w-full max-w-[80rem] h-full flex flex-col justify-start px-4 mx-auto">
+            <div className="w-full pt-[12vh] pb-[34vh] lg:pb-[38vh]">
+              <AboutIntro activeId={activeAboutId} onChange={setActiveAboutId} aboutStyle={aboutStyle} />
+            </div>
+          </div>
         </section>
         <section
           id="works"
           style={{
             backgroundColor: "#E0E0FF",
           }}
-          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-start flex justify-center items-start pt-0 pb-0 overflow-visible"
+          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-start flex justify-center items-start pt-[14vh] lg:pt-[18vh] pb-[14vh] lg:pb-[18vh] overflow-visible"
         >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 right-0 top-0 h-[18vh] z-10"
+            className="pointer-events-none absolute left-0 right-0 top-0 h-[24vh] z-10"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(240,240,236,1) 0%, rgba(220,220,255,0.75) 55%, rgba(220,220,255,0) 100%)",
+                "linear-gradient(to bottom, rgba(226,226,255,0.95) 0%, rgba(226,226,255,0.7) 45%, rgba(226,226,255,0.2) 80%, rgba(226,226,255,0) 100%)",
             }}
           />
           <div
@@ -206,7 +329,7 @@ export default function HomeClient() {
             backgroundColor: "#F0F0EC",
             color: BASE_TEXT,
           }}
-          className="relative z-10 w-[100%] min-h-[100dvh] snap-start flex justify-center items-start pt-24 pb-0 overflow-visible"
+          className="relative z-10 w-[100%] min-h-[100dvh] snap-start flex justify-center items-start pt-24 pb-[16vh] lg:pb-[20vh] overflow-visible"
         >
           <div
             aria-hidden="true"
@@ -222,8 +345,16 @@ export default function HomeClient() {
         </section>
         <section
           id="contact"
-          className="relative z-10 w-[100%] h-[100dvh] snap-end md:p-28 xl:p-40 p-6 content-center"
+          className="relative z-10 w-[100%] h-[100dvh] snap-end pt-[16vh] lg:pt-[20vh] md:p-28 xl:p-40 p-6 content-center"
         >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-0 left-0 right-0 h-[4vh] z-20"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(240,240,236,0.9) 0%, rgba(240,240,236,0.45) 55%, rgba(240,240,236,0.12) 80%, transparent 100%)",
+            }}
+          />
           <Contact borderRadius={borderRadius} sectionOn={sectionOn} />
           <footer className="transition duration-500 text-primaryB absolute bottom-0 left-0 w-full h-auto text-center p-4 md:p-8 font-[400] leading-[1.5] text-[2.6vw] md:text-[1.8vw] lg:text-[0.9vw] xl:text-[0.75vw]">
             {aboutInfo?.[0]?.[3] || "© 2025. All rights reserved."}
