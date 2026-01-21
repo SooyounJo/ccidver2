@@ -83,6 +83,7 @@ export default function Works({ textColor, sectionOn }) {
     const yearsRow = rows[baseIdx] || [];
     const enRow = rows[baseIdx + 1] || [];
     const krRow = rows[baseIdx + 2] || [];
+    const tfRowCandidate = isTfRow(rows[baseIdx + 3]) ? rows[baseIdx + 3] : [];
 
     const titleRow =
       (lang === "en" ? enRow : krRow) && (lang === "en" ? enRow : krRow).length > 0
@@ -133,8 +134,10 @@ export default function Works({ textColor, sectionOn }) {
         "Hyundai Motors":
           "Hyeonji Lee, Jiwon Park, Tae Eun Kim\nYaeji Jang, Sooyoun Jo, Hyeonji Lee,\nJiwon Park, Tae Eun Kim, Yaeji Jang",
       };
+      const tfFromSheet = String(tfRowCandidate?.[j] ?? "").trim();
       const tf =
-        currentYear === "2025" && tfByClient2025[client] ? tfByClient2025[client] : "";
+        tfFromSheet ||
+        (currentYear === "2025" && tfByClient2025[client] ? tfByClient2025[client] : "");
 
       // Shortened / overridden description per Figma design
       const titleOverrides2025 = {
@@ -181,11 +184,17 @@ export default function Works({ textColor, sectionOn }) {
     return out;
   };
 
+  const isTfRow = (row) => {
+    const firstCell = normalizeOneLine(row?.[0]).toLowerCase();
+    return firstCell.includes("tf") || firstCell.includes("team");
+  };
+
   const selectedProjects = [];
-  for (let i = 0; i < rows.length; i += 3) {
+  for (let i = 0; i < rows.length; ) {
     const blockProjects = parseBlock(i);
-    if (blockProjects.length === 0) continue;
-    selectedProjects.push(...blockProjects);
+    if (blockProjects.length > 0) selectedProjects.push(...blockProjects);
+    const tfRowCandidate = rows[i + 3];
+    i += isTfRow(tfRowCandidate) ? 4 : 3;
   }
 
   const INITIAL_YEAR = "2025";
@@ -267,9 +276,7 @@ export default function Works({ textColor, sectionOn }) {
           setHoveredRowMedia([]);
           setHoveredMediaIndex(0);
         }}
-        className={`border-b border-primaryB pt-0 pb-[32px] overflow-hidden transition-[max-height,background-color] duration-300 ease-out ${
-          isHover ? "bg-black/[0.02]" : ""
-        }`}
+        className="border-b border-primaryB pt-0 pb-[32px] overflow-hidden transition-[max-height] duration-300 ease-out"
         style={{
           maxHeight: isHover ? `${rowHHover}px` : `${rowH}px`,
         }}
@@ -280,7 +287,7 @@ export default function Works({ textColor, sectionOn }) {
         >
           {/* Left: Client + Year (296×contentH) */}
           <div className="lg:basis-[296px] lg:flex-none overflow-hidden">
-            <div className={`${neuehaas.className} tracking-[-0.03em] flex flex-col`}>
+              <div className={`${pxGrotesk.className} tracking-[-0.03em] flex flex-col`}>
               {/* Title block: pb 5px */}
               <div className="pb-[5px]">
                 <div className="text-[24px] leading-[1.45] font-medium text-primaryB w-[220px]">
@@ -565,13 +572,13 @@ export default function Works({ textColor, sectionOn }) {
           <div className="relative z-10 text-primaryB">
             <div
               className={`mx-auto w-[80rem] ${isExpanded ? "h-auto" : "h-[52.5rem]"} flex flex-col`}
-              style={{ backgroundColor: "#f0f0ec" }}
+              style={{ backgroundColor: "transparent" }}
             >
               {/* Header row */}
               <div className="h-[3.875rem] border-b border-primaryB flex items-end pb-4">
                 <motion.div
                   animate={headerControls}
-                  className={`${neuehaas.className} tracking-[-0.03em] leading-none whitespace-nowrap text-[1.75rem] md:text-[1.875rem] lg:text-[2rem]`}
+                  className={`${pxGrotesk.className} tracking-[-0.03em] leading-none whitespace-nowrap text-[1.75rem] md:text-[1.875rem] lg:text-[2rem]`}
                 >
                   {selectedHeaderRaw}
                 </motion.div>

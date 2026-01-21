@@ -18,6 +18,14 @@ export default function HomeClient() {
   const mainRef = useRef(null);
   const BASE_BG = "#f0f0ec"; // 기본 라이트(전체)
   const BASE_TEXT = "#0f0f13"; // 기본 블랙(전체)
+  const BASE_BG_RGB = { r: 240, g: 240, b: 236 };
+  const PEOPLE_PURPLE_RGB = { r: 224, g: 207, b: 239 };
+  const lerp = (a, b, t) => Math.round(a + (b - a) * t);
+  const peopleTintRgb = {
+    r: lerp(BASE_BG_RGB.r, PEOPLE_PURPLE_RGB.r, 0.7),
+    g: lerp(BASE_BG_RGB.g, PEOPLE_PURPLE_RGB.g, 0.7),
+    b: lerp(BASE_BG_RGB.b, PEOPLE_PURPLE_RGB.b, 0.7),
+  };
   const [worksBlend, setWorksBlend] = useState(0); // 0..1 (Works 섹션만)
   const [membersBlend, setMembersBlend] = useState(0); // 0..1 (People 섹션만)
   const [borderRadius, setBorderRadius] = useState(9999); // 초기값: rounded-full
@@ -138,42 +146,54 @@ export default function HomeClient() {
         }}
         className="left-0 fixed bg-[url('/img/bgt.png')] bg-repeat bg-contain bg-center w-full h-[118dvh]"
       />
-
+      {/* Base background layer */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{ background: BASE_BG }}
+      />
       <main
         ref={mainRef}
         style={{
-          background: BASE_BG, // 전체 배경은 항상 라이트(화이트)
+          background: "transparent",
           color: BASE_TEXT,
           borderColor: BASE_TEXT,
         }}
-        className="scrollbar-hide z-10 h-[100dvh] w-[100%] overflow-y-scroll snap-y snap-mandatory"
+        className="relative scrollbar-hide z-10 h-[100dvh] w-[100%] overflow-y-scroll snap-y snap-mandatory"
       >
         <section
           id="cover"
-          className="relative w-[100%] h-[100%] snap-start flex items-center justify-center"
+          className="relative z-10 w-[100%] h-[100%] snap-start flex items-center justify-center"
         >
           <Cover textColor={BASE_TEXT} />
         </section>
         <section
           id="about"
-          className="relative w-[100%] h-[100dvh] snap-start"
+          className="relative z-10 w-[100%] h-[100dvh] snap-start"
         >
           <AboutPager sectionOn={sectionOn} scrollRootRef={mainRef} />
         </section>
         <section
           id="works"
           style={{
-            backgroundColor: BASE_BG,
+            backgroundColor: "#E0E0FF",
           }}
-          className="transition-all duration-1000 lg:content-center w-full relative min-h-[100dvh] snap-start flex justify-center items-start pt-24 pb-16"
+          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-start flex justify-center items-start pt-0 pb-0 overflow-visible"
         >
-          {/* Soft gradient edges so the Works transition doesn't look like a hard cut */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute top-0 left-0 w-full h-[11.25rem] z-0"
+            className="pointer-events-none absolute left-0 right-0 top-0 h-[18vh] z-10"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(240,240,236,1) 0%, rgba(240,240,236,0.65) 35%, rgba(240,240,236,0) 100%)",
+                "linear-gradient(to bottom, rgba(240,240,236,1) 0%, rgba(220,220,255,0.75) 55%, rgba(220,220,255,0) 100%)",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-0 right-0 bottom-0 h-[22vh] z-10"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(220,220,255,0.9) 0%, rgba(220,220,255,0.45) 55%, rgba(240,240,236,0) 100%)",
             }}
           />
           <div className="relative z-10 w-full max-w-[90rem]">
@@ -182,56 +202,27 @@ export default function HomeClient() {
         </section>
         <section
           id="members"
-          style={(() => {
-            // Only this section blends to purple; cap the max blend so the purple stays a bit lighter.
-            const clamp01 = (n) => Math.max(0, Math.min(1, n));
-            const lerp = (a, b, t) => Math.round(a + (b - a) * t);
-            const t = clamp01(membersBlend) * 0.7; // max 70% tint
-
-            const base = { r: 240, g: 240, b: 236 }; // #f0f0ec
-            const purple = { r: 193, g: 184, b: 251 }; // #c1b8fb
-            const bg = `rgb(${lerp(base.r, purple.r, t)}, ${lerp(
-              base.g,
-              purple.g,
-              t
-            )}, ${lerp(base.b, purple.b, t)})`;
-
-            // Text tint eases in quickly so readability stays consistent.
-            const textT = clamp01(membersBlend / 0.35);
-            const text = `rgba(93, 0, 156, ${textT})`;
-
-            return {
-              backgroundColor: bg,
-              color: text,
-            };
-          })()}
-          className="relative w-[100%] min-h-[100dvh] snap-start md:p-28 p-6 lg:px-[12%]"
+          style={{
+            backgroundColor: "#F0F0EC",
+            color: BASE_TEXT,
+          }}
+          className="relative z-10 w-[100%] min-h-[100dvh] snap-start flex justify-center items-start pt-24 pb-0 overflow-visible"
         >
-          {/* Soft gradient edges so the transition doesn't look like a hard cut */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute top-0 left-0 w-full h-[28vh] z-0"
+            className="pointer-events-none absolute top-0 left-0 right-0 h-[100vh] z-0"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(240,240,236,1) 0%, rgba(240,240,236,0.65) 35%, rgba(240,240,236,0) 100%)",
+                "linear-gradient(to bottom, rgba(220,220,255,0.92) 0%, rgba(220,220,255,0.62) 40%, rgba(220,220,255,0.28) 70%, rgba(240,240,236,0) 100%)",
             }}
           />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute bottom-0 left-0 w-full h-[28vh] z-0"
-            style={{
-              background:
-                "linear-gradient(to top, rgba(240,240,236,1) 0%, rgba(240,240,236,0.65) 35%, rgba(240,240,236,0) 100%)",
-            }}
-          />
-
-          <div className="relative z-10">
+          <div className="relative z-10 w-full max-w-[80rem]">
             <Members />
           </div>
         </section>
         <section
           id="contact"
-          className="relative w-[100%] h-[100dvh] snap-end md:p-28 xl:p-40 p-6 content-center"
+          className="relative z-10 w-[100%] h-[100dvh] snap-end md:p-28 xl:p-40 p-6 content-center"
         >
           <Contact borderRadius={borderRadius} sectionOn={sectionOn} />
           <footer className="transition duration-500 text-primaryB absolute bottom-0 left-0 w-full h-auto text-center p-4 md:p-8 font-[400] leading-[1.5] text-[2.6vw] md:text-[1.8vw] lg:text-[0.9vw] xl:text-[0.75vw]">
