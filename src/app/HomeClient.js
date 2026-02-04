@@ -208,7 +208,22 @@ export default function HomeClient() {
       {/* ReactBits-style gradual blur under the top navigation */}
       <GradualBlurTop sectionOn={sectionOn} />
       <Header sectionOn={sectionOn} />
-      <Nav sectionOn={sectionOn} />
+      <Nav
+        sectionOn={sectionOn}
+        onNavigate={(nextSection) => {
+          const target = nextSection || "cover";
+          currentSectionRef.current = target;
+          setSectionOn(target);
+          if (target === "about") {
+            setActiveAboutId("who");
+            setIsAboutLocked(true);
+            aboutLockTimeRef.current = Date.now();
+            lastStepTimeRef.current = Date.now();
+          } else {
+            setIsAboutLocked(false);
+          }
+        }}
+      />
 
       <Navmobile sectionOn={sectionOn} />
 
@@ -251,10 +266,10 @@ export default function HomeClient() {
           id="cover"
           className="relative z-10 w-[100%] h-[100%] snap-start flex items-start justify-start"
         >
-          <div className="relative z-10 w-full max-w-[80rem] px-4 mx-auto">
+          <div className="relative z-10 w-[80rem] mx-auto">
             <Cover textColor={BASE_TEXT} />
           </div>
-          <div className="absolute bottom-[-2vh] left-0 w-full h-[12vh] pointer-events-none z-0 flex">
+          <div className="absolute bottom-0 left-0 w-full h-[3vh] pointer-events-none z-0 flex">
             <div
               className="w-[44.27%] h-full"
               style={{
@@ -290,7 +305,7 @@ export default function HomeClient() {
                 "linear-gradient(to bottom, rgba(240, 240, 237, 0.2) 0%, rgba(226, 226, 255, 0.55) 55%, rgba(226, 226, 255, 0.9) 100%)",
             }}
           />
-          <div className="relative z-10 w-full max-w-[80rem] h-full flex flex-col justify-start px-4 mx-auto">
+          <div className="relative z-10 w-[80rem] mx-auto h-full flex flex-col justify-start">
             <div className="w-full pt-[12vh] pb-[34vh] lg:pb-[38vh]">
               <AboutIntro activeId={activeAboutId} onChange={setActiveAboutId} aboutStyle={aboutStyle} />
             </div>
@@ -316,10 +331,10 @@ export default function HomeClient() {
             className="pointer-events-none absolute left-0 right-0 bottom-0 h-[22vh] z-10"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(220,220,255,0.9) 0%, rgba(220,220,255,0.45) 55%, rgba(240,240,236,0) 100%)",
+                "linear-gradient(to bottom, rgba(220,220,255,0.95) 0%, rgba(220,220,255,0.75) 55%, rgba(220,220,255,1) 100%)",
             }}
           />
-          <div className="relative z-10 w-[calc(80rem+20px)] mx-auto">
+          <div className="relative z-10 w-[calc(80rem+60px)] mx-auto">
             <Works textColor={BASE_TEXT} sectionOn={sectionOn} />
           </div>
         </section>
@@ -339,7 +354,7 @@ export default function HomeClient() {
                 "linear-gradient(to bottom, rgba(220,220,255,0.92) 0%, rgba(220,220,255,0.62) 40%, rgba(220,220,255,0.28) 70%, rgba(240,240,236,0) 100%)",
             }}
           />
-          <div className="relative z-10 w-[calc(80rem+20px)] mx-auto">
+          <div className="relative z-10 w-[calc(80rem+60px)] mx-auto">
             <Members />
           </div>
         </section>
@@ -355,8 +370,8 @@ export default function HomeClient() {
                 "linear-gradient(to bottom, rgba(240,240,236,0.9) 0%, rgba(240,240,236,0.45) 55%, rgba(240,240,236,0.12) 80%, transparent 100%)",
             }}
           />
-          <Contact borderRadius={borderRadius} sectionOn={sectionOn} />
-          <footer className="transition duration-500 text-primaryB absolute bottom-0 left-0 w-full h-auto text-center p-4 md:p-8 font-[400] leading-[1.5] text-[2.6vw] md:text-[1.8vw] lg:text-[0.9vw] xl:text-[0.75vw]">
+          <Contact borderRadius={borderRadius} sectionOn={sectionOn} colorPalette={colorPalette} />
+          <footer className="transition duration-500 text-white absolute bottom-0 left-0 w-full h-auto text-center p-4 md:p-8 font-[400] leading-[1.5] text-[2.6vw] md:text-[1.8vw] lg:text-[0.9vw] xl:text-[0.75vw]">
             {aboutInfo?.[0]?.[3] || "© 2025. All rights reserved."}
           </footer>
         </section>

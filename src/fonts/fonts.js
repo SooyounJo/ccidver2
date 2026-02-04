@@ -21,6 +21,13 @@ export const pretendardB = localFont({
   display: 'swap',
 });
 
+export const pretendardR = localFont({
+  src: '../../public/fonts/PretendardVariable.ttf',
+  weight: '100 900',
+  style: 'normal',
+  display: 'swap',
+});
+
 export const neuehaas = localFont({
   src: '../fonts/NeueHaasGrotText-55Roman-Web.woff2', // 경로 확인 (src 내부에서 접근)
   weight: '400',

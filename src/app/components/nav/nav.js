@@ -3,7 +3,7 @@ import LanguageToggle from "./lang";
 import { programme } from "@/fonts/fonts";
 import { useState, useRef, useEffect } from "react";
 
-export default function Nav({ sectionOn }) {
+export default function Nav({ sectionOn, onNavigate }) {
   const [boxPosition, setBoxPosition] = useState(0);
   const [boxWidth, setBoxWidth] = useState(0);
   const [boxTop, setBoxTop] = useState(0);
@@ -65,6 +65,10 @@ export default function Nav({ sectionOn }) {
     setBoxWidth(width);
     setBoxTop(top);
     setBoxHeight(height);
+    if (typeof onNavigate === "function") {
+      const cleanId = String(id || "").replace("#", "");
+      onNavigate(cleanId);
+    }
     document.querySelector(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -80,7 +84,7 @@ export default function Nav({ sectionOn }) {
   };
 
   const showBox = isHovered || sections.includes(sectionOn);
-  const isCover = sectionOn === "cover";
+  const isCover = sectionOn === "cover" || sectionOn === "contact";
 
   return (
     <div
@@ -121,7 +125,7 @@ export default function Nav({ sectionOn }) {
                 href={id}
                 ref={(el) => (linkRefs.current[index] = el)}
                 className={`transition-all mx-3 duration-300 ${
-                  sectionOn === "cover"
+                  isCover
                     ? "text-primaryW/85 hover:text-primaryW opacity-90 hover:opacity-100"
                     : "text-primaryB opacity-70 hover:opacity-100"
                 }`}

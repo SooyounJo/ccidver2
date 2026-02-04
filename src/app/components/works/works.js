@@ -236,7 +236,7 @@ export default function Works({ textColor, sectionOn }) {
     });
   };
 
-  const renderRow = (p, idx, keyPrefix) => {
+  const renderRow = (p, idx, keyPrefix, isLast) => {
     // Figma: most rows use 160px content height + 32px bottom padding (=192px total).
     // CJ row uses 137px content height + 32px bottom padding (=169px total).
     const clientKey = String(p?.client || "").toLowerCase();
@@ -278,7 +278,9 @@ export default function Works({ textColor, sectionOn }) {
           setHoveredRowMedia([]);
           setHoveredMediaIndex(0);
         }}
-        className="border-b border-primaryB pt-0 pb-[32px] overflow-hidden transition-[max-height] duration-300 ease-out"
+        className={`pt-0 pb-[32px] overflow-hidden transition-[max-height] duration-300 ease-out ${
+          isLast ? "" : "border-b border-primaryB"
+        }`}
         style={{
           maxHeight: isHover ? `${rowHHover}px` : `${rowH}px`,
         }}
@@ -594,11 +596,14 @@ export default function Works({ textColor, sectionOn }) {
                       </button>
                     </div>
                   )}
-                  {visibleProjects.map((p, idx) => (
-                    <div key={`list-wrap-${p?.year || "y"}-${idx}-${p?.title || "t"}`}>
-                      {renderRow(p, idx, "list")}
-                    </div>
-                  ))}
+                  {visibleProjects.map((p, idx) => {
+                    const isLast = idx === visibleProjects.length - 1;
+                    return (
+                      <div key={`list-wrap-${p?.year || "y"}-${idx}-${p?.title || "t"}`}>
+                        {renderRow(p, idx, "list", isLast)}
+                      </div>
+                    );
+                  })}
                   {!isExpanded && hasMore && (
                     <div
                       aria-hidden="true"

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ABOUT_SECTIONS } from "./aboutData";
-import { pxGrotesk } from "@/fonts/fonts";
+import { pretendardR } from "@/fonts/fonts";
+import CanvasKeyedImage from "./CanvasKeyedImage";
 
 export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
   const [displayId, setDisplayId] = useState(activeId);
@@ -30,14 +31,17 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
     ? contentSection.paragraphs
     : [];
 
-  const paragraphs2 = [safeParagraphs[0] || "", safeParagraphs[1] || ""].filter(
-    Boolean
-  );
+  const paragraphs2 = [safeParagraphs[0] || "", safeParagraphs[1] || ""].filter(Boolean);
+  const leftParagraph = paragraphs2[0] || "";
+  const rightParagraph = paragraphs2[1] || "";
+  const showSectorsImage = displayId === "sectors";
 
   return (
-    <div className={`w-full relative z-10 ${pxGrotesk.className}`}>
-      <div className="flex flex-col lg:flex-row items-start lg:gap-[2vw]">
-        <div className="w-full lg:w-[28%]">
+    <div className={`w-full relative z-10 antialiased ${pretendardR.className}`}>
+      {/* Keep content aligned left; keep content box sizes like before */}
+      <div className="grid grid-cols-1 lg:grid-cols-[296px_1fr] gap-y-8 lg:gap-y-0 lg:gap-x-8 items-start">
+        {/* Left nav column */}
+        <div className="w-full lg:col-start-1 lg:col-span-1">
           {aboutStyle === 1 ? (
             <h2 className="text-left font-[500] leading-tight text-[28px] tracking-[-0.03em]">
               {titleSection.title}
@@ -47,13 +51,16 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
               {ABOUT_SECTIONS.map((section) => {
                 const isActive = section.id === activeId;
                 return (
-                  <li
-                    key={section.id}
-                    className={`text-left leading-tight text-[28px] tracking-[-0.03em] ${
-                      isActive ? "font-[500] text-[#0f0f13]" : "font-[500] text-[#9D9C9C]"
-                    }`}
-                  >
-                    {section.title}
+                  <li key={section.id}>
+                    <button
+                      type="button"
+                      onClick={() => onChange?.(section.id)}
+                      className={`text-left leading-tight text-[28px] tracking-[-0.03em] ${
+                        isActive ? "font-[500] text-[#0f0f13]" : "font-[500] text-[#9D9C9C]"
+                      }`}
+                    >
+                      {section.title}
+                    </button>
                   </li>
                 );
               })}
@@ -61,55 +68,40 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
           )}
         </div>
 
+        {/* Content area */}
         <div
-          className={`w-full lg:w-[72%] transition-opacity duration-300 ease-in-out ${
+          className={`w-full lg:col-start-2 lg:col-span-1 transition-opacity duration-300 ease-in-out ${
             isFade ? "opacity-100" : "opacity-0"
           }`}
         >
+          {/* Text boxes: keep the previous 2-column sizing */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-            {paragraphs2.map((paragraph, index) => (
-              <p key={index} className="text-[16px] leading-[1.45]">
-                {paragraph}
-              </p>
-            ))}
+            {leftParagraph ? <p className="text-[16px] leading-[1.45]">{leftParagraph}</p> : null}
+            {rightParagraph ? (
+              <p className="text-[15px] leading-[1.6]">{rightParagraph}</p>
+            ) : null}
           </div>
 
-          <div className={`w-full lg:pb-[5vh] ${displayId === "who" ? "mt-10" : "mt-14"}`}>
-            {displayId === "who" ? (
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
-                  <img src="/img/about_1.png" alt="About 1" className="object-cover w-full h-full" />
-                </div>
-                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
-                  <img src="/img/about_2.png" alt="About 2" className="object-cover w-full h-full" />
-                </div>
-              </div>
-            ) : displayId === "sectors" ? (
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
-                  <img src="/img/about_3.png" alt="About 3" className="w-full h-full object-cover" />
-                </div>
+          {showSectorsImage ? (
+            <div className="w-full lg:pb-[5vh] mt-14">
+              {/* Match the same 2-col grid as the text; image aligns to English column width */}
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                <CanvasKeyedImage
+                  src="/img/about_3.png"
+                  alt="Sectors We Serve"
+                  className="w-full max-h-[42vh] overflow-visible"
+                  mediaClassName="origin-top-left [transform:translateX(-15%)_translateY(-2%)_scale(1.24)]"
+                  keyMin={235}
+                  chromaTolerance={34}
+                  gamma={1.35}
+                  trim
+                  trimPadding={2}
+                  trimAlphaThreshold={12}
+                />
                 <div className="hidden md:block" />
               </div>
-            ) : (
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
-                  <img
-                    src="/img/about_4.png"
-                    alt="About 4"
-                    className="w-full h-full object-cover object-center"
-                  />
-                </div>
-                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
-                  <img
-                    src="/img/about_5.png"
-                    alt="About 5"
-                    className="w-full h-full object-cover object-center"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

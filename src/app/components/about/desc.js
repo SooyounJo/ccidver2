@@ -33,7 +33,7 @@ function DescItem({ id, title, description, imageUrl, isOpen, onToggle }) {
       <div className="w-full lg:w-[48%]">
         {/* Show image box only when an image URL exists (otherwise no box) */}
         {typeof imageUrl === "string" && imageUrl.trim() !== "" && (
-          <GreyPlaceholder className="w-full mb-[1.3vw] rounded-[3px] aspect-[16/9]" />
+          <GreyPlaceholder className="w-full mb-[1.3vw] rounded-md aspect-[16/9]" />
         )}
         <div className="relative">
           <div
