@@ -547,15 +547,44 @@ export default function Works({ textColor, sectionOn }) {
     );
   };
 
+  const renderMobileCard = (p, idx) => {
+    const img = Array.isArray(p?.images) && p.images.length > 0 ? String(p.images[0] || "").trim() : "";
+    const title = String(p?.client || p?.description || p?.title || "").trim();
+    const year = String(p?.year || "").trim();
+
+    return (
+      <div
+        key={`mcard-${year || "y"}-${idx}-${title || "t"}`}
+        className="border-b border-primaryB pb-6"
+      >
+        <div className="w-full overflow-hidden rounded-[3px] bg-[#F6F0FF] aspect-[16/9]">
+          {img ? (
+            <img src={img} alt={title || "project"} className="w-full h-full object-cover" />
+          ) : (
+            <GreyPlaceholder className="w-full h-full" />
+          )}
+        </div>
+        <div className={`${pxGrotesk.className} pt-4 flex items-baseline justify-between gap-4`}>
+          <div className="min-w-0 text-[18px] leading-[1.35] font-medium text-primaryB truncate">
+            {title}
+          </div>
+          <div className="flex-none text-[14px] leading-[1.35] font-light text-primaryB/80">
+            {year}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <div
         ref={rootRef}
-        className="text-primaryB w-full font-[400] relative py-8 lg:py-10 px-4"
+        className="text-primaryB w-full font-[400] relative py-8 lg:py-10"
       >
         {visibleProjects.length > 0 ? (
           <div className="relative z-10 text-primaryB">
-            <div className="mx-auto w-[80rem] flex flex-col" style={{ backgroundColor: "transparent" }}>
+            <div className="w-full flex flex-col" style={{ backgroundColor: "transparent" }}>
               {/* Header row */}
               <div className="h-[3.875rem] border-b border-primaryB flex items-end pb-4">
                 <motion.div
@@ -567,9 +596,39 @@ export default function Works({ textColor, sectionOn }) {
               </div>
 
               <div className="flex-1 flex flex-col">
+                {/* Mobile: one card per row (image + title + year only) */}
+                <div className="sm:hidden pt-4 space-y-6">
+                  {visibleProjects.map((p, idx) => renderMobileCard(p, idx))}
+                  {!isExpanded && hasMore && (
+                    <div className="pt-2 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={toggleExpanded}
+                        aria-label={toggleAriaLabel}
+                        className={`${programme.className} font-semibold text-[1.05rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-5 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
+                      >
+                        more
+                      </button>
+                    </div>
+                  )}
+                  {isExpanded && (
+                    <div className="pt-2 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={toggleExpanded}
+                        aria-label={toggleAriaLabel}
+                        className={`${programme.className} font-semibold text-[1.05rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity`}
+                      >
+                        close
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Desktop */}
                 <motion.div
                   animate={contentControls}
-                  className={`relative pt-[1rem] space-y-[1rem] ${
+                  className={`hidden sm:block relative pt-[1rem] space-y-[1rem] ${
                     isExpanded ? "overflow-visible" : "overflow-hidden"
                   }`}
                   style={

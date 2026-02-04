@@ -43,7 +43,7 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
         {/* Left nav column */}
         <div className="w-full lg:col-start-1 lg:col-span-1">
           {aboutStyle === 1 ? (
-            <h2 className="text-left font-[500] leading-tight text-[28px] tracking-[-0.03em]">
+            <h2 className="text-left font-[500] leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em]">
               {titleSection.title}
             </h2>
           ) : (
@@ -55,7 +55,7 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
                     <button
                       type="button"
                       onClick={() => onChange?.(section.id)}
-                      className={`text-left leading-tight text-[28px] tracking-[-0.03em] ${
+                      className={`text-left leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em] ${
                         isActive ? "font-[500] text-[#0f0f13]" : "font-[500] text-[#9D9C9C]"
                       }`}
                     >
@@ -76,9 +76,13 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
         >
           {/* Text boxes: keep the previous 2-column sizing */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-            {leftParagraph ? <p className="text-[16px] leading-[1.45]">{leftParagraph}</p> : null}
+            {leftParagraph ? (
+              <p className="text-[14px] sm:text-[16px] leading-[1.55] sm:leading-[1.45]">
+                {leftParagraph}
+              </p>
+            ) : null}
             {rightParagraph ? (
-              <p className="text-[16px] leading-[1.45] font-[450]">{rightParagraph}</p>
+              <p className="hidden sm:block text-[16px] leading-[1.45] font-[450]">{rightParagraph}</p>
             ) : null}
           </div>
 

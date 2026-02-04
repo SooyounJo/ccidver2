@@ -41,6 +41,31 @@ export default function HomeClient() {
   const [aboutInfo, setAboutInfo] = useState(sheetsStatic?.about || []);
   const ABOUT_ORDER = ["who", "sectors", "methodology"];
 
+  // OS-specific layout vars (mac desktop: fixed 80px gutters like Figma).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const ua = navigator.userAgent || "";
+    const platform = navigator.platform || "";
+    const isAppleDesktop = /Mac/i.test(platform) || /Mac OS X/i.test(ua);
+
+    const applyLayoutVars = () => {
+      const isMobile = window.matchMedia("(max-width: 639px)").matches;
+      const useMacFixedGutter = isAppleDesktop && !isMobile;
+
+      document.documentElement.style.setProperty("--siteGutter", useMacFixedGutter ? "80px" : "1rem");
+      // On mac desktop, force fixed 80px gutters by allowing container to expand with viewport.
+      document.documentElement.style.setProperty("--siteMax", useMacFixedGutter ? "calc(100vw - 160px)" : "80rem");
+      document.documentElement.style.setProperty(
+        "--siteMaxWide",
+        useMacFixedGutter ? "calc(100vw - 160px)" : "calc(80rem + 60px)"
+      );
+    };
+
+    applyLayoutVars();
+    window.addEventListener("resize", applyLayoutVars);
+    return () => window.removeEventListener("resize", applyLayoutVars);
+  }, []);
+
   useEffect(() => {
     setAboutInfo(sheetsStatic?.about || []);
   }, []);
@@ -50,17 +75,33 @@ export default function HomeClient() {
     if (!mainEl) return;
 
     const sections = mainEl.querySelectorAll("section");
+    const ratioById = new Map();
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
+      (entries) => {
+        // Track intersection ratio per section and choose the most visible one.
+        entries.forEach((entry) => {
+          const id = entry?.target?.id;
+          if (!id) return;
+          ratioById.set(id, entry.isIntersecting ? entry.intersectionRatio : 0);
+        });
 
-        const key = entry.target.id;
-        if (key === currentSectionRef.current) return;
+        let bestId = currentSectionRef.current;
+        let bestRatio = ratioById.get(bestId) ?? 0;
+        ratioById.forEach((ratio, id) => {
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestId = id;
+          }
+        });
 
-        currentSectionRef.current = key;
-        setSectionOn(key); // 보이는 섹션의 ID를 저장
+        // Ignore tiny intersections (prevents jitter at boundaries)
+        if (!bestId || bestRatio < 0.15) return;
+        if (bestId === currentSectionRef.current) return;
 
-        if (key === "about") {
+        currentSectionRef.current = bestId;
+        setSectionOn(bestId);
+
+        if (bestId === "about") {
           setActiveAboutId("who");
           setIsAboutLocked(true);
           aboutLockTimeRef.current = Date.now();
@@ -69,12 +110,18 @@ export default function HomeClient() {
           setIsAboutLocked(false);
         }
       },
-      { threshold: 0.4, root: mainEl }
+      {
+        threshold: [0, 0.15, 0.3, 0.45, 0.6, 0.75],
+        root: mainEl,
+      }
     );
 
     sections.forEach((section) => observer.observe(section));
 
-    return () => sections.forEach((section) => observer.unobserve(section));
+    return () => {
+      observer.disconnect();
+      ratioById.clear();
+    };
   }, []);
 
   useEffect(() => {
@@ -266,7 +313,7 @@ export default function HomeClient() {
           id="cover"
           className="relative z-10 w-[100%] h-[100%] snap-start flex items-start justify-start"
         >
-          <div className="relative z-10 w-[80rem] mx-auto">
+          <div className="relative z-10 w-full max-w-[var(--siteMax)] px-[var(--siteGutter)] mx-auto">
             <Cover textColor={BASE_TEXT} />
           </div>
           <div className="absolute bottom-0 left-0 w-full h-[3vh] pointer-events-none z-0 flex">
@@ -305,7 +352,7 @@ export default function HomeClient() {
                 "linear-gradient(to bottom, rgba(240, 240, 237, 0.2) 0%, rgba(226, 226, 255, 0.55) 55%, rgba(226, 226, 255, 0.9) 100%)",
             }}
           />
-          <div className="relative z-10 w-[80rem] mx-auto h-full flex flex-col justify-start">
+          <div className="relative z-10 w-full max-w-[var(--siteMax)] px-[var(--siteGutter)] mx-auto h-full flex flex-col justify-start">
             <div className="w-full pt-[12vh] pb-[34vh] lg:pb-[38vh]">
               <AboutIntro activeId={activeAboutId} onChange={setActiveAboutId} aboutStyle={aboutStyle} />
             </div>
@@ -334,7 +381,7 @@ export default function HomeClient() {
                 "linear-gradient(to bottom, rgba(220,220,255,0.95) 0%, rgba(220,220,255,0.75) 55%, rgba(220,220,255,1) 100%)",
             }}
           />
-          <div className="relative z-10 w-[calc(80rem+60px)] mx-auto">
+          <div className="relative z-10 w-full max-w-[var(--siteMaxWide)] px-[var(--siteGutter)] mx-auto">
             <Works textColor={BASE_TEXT} sectionOn={sectionOn} />
           </div>
         </section>
@@ -354,7 +401,7 @@ export default function HomeClient() {
                 "linear-gradient(to bottom, rgba(220,220,255,0.92) 0%, rgba(220,220,255,0.62) 40%, rgba(220,220,255,0.28) 70%, rgba(240,240,236,0) 100%)",
             }}
           />
-          <div className="relative z-10 w-[calc(80rem+60px)] mx-auto">
+          <div className="relative z-10 w-full max-w-[var(--siteMaxWide)] px-[var(--siteGutter)] mx-auto">
             <Members />
           </div>
         </section>

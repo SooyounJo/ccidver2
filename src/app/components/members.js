@@ -32,6 +32,7 @@ export default function Members() {
 
   const categories = Object.entries(membersInfo);
   const [firstCategory, ...otherCategories] = categories;
+  const allMembers = categories.flatMap(([, list]) => (Array.isArray(list) ? list : [])).filter(Boolean);
 
   const chunkPairs = (list) => {
     const out = [];
@@ -125,13 +126,49 @@ export default function Members() {
   };
 
   return (
-    <div className="w-full text-black px-4">
+    <div className="w-full text-black">
       <div className="w-full">
         <div className="h-[3.875rem] border-b border-black flex items-end pb-4">
           <p className={`${pxGrotesk.className} text-[32px] leading-[1.45]`}>Members</p>
         </div>
 
-        <div className="pt-[1rem] flex flex-col gap-[1rem]">
+        {/* Mobile: 3-column grid (photo + name only) */}
+        <div className="sm:hidden pt-4">
+          <div className="grid grid-cols-3 gap-x-4 gap-y-6">
+            {allMembers.map((member, idx) => {
+              const [, name, image] = member;
+              const imageSrc = String(image || "").trim();
+              return (
+                <div key={`m-${idx}-${name || "n"}`} className="min-w-0">
+                  <div className="w-full overflow-hidden rounded-[3px] bg-[#F6F0FF] aspect-[132/153]">
+                    {imageSrc ? (
+                      <img
+                        src={imageSrc}
+                        alt={name || "member"}
+                        className="w-full h-full object-cover filter grayscale brightness-[0.95] contrast-[1.05]"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <GreyPlaceholder className="w-full h-full" />
+                    )}
+                  </div>
+                  <div
+                    className={`${pxGrotesk.className} pt-2 text-[13px] leading-[1.35] font-medium text-black truncate`}
+                  >
+                    {name || ""}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop */}
+        <div className="hidden sm:flex pt-[1rem] flex-col gap-[1rem]">
           {firstCategory?.[1]?.length ? (
             <div className="grid grid-cols-8 gap-x-[32px] border-b border-black pb-[32px]">
               {renderMemberBlock(firstCategory[1][0], 1, true)}

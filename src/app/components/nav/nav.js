@@ -49,6 +49,13 @@ export default function Nav({ sectionOn, onNavigate }) {
     return () => cancelAnimationFrame(rafId);
   }, [sectionOn, sections]);
 
+  // Re-measure on resize (font/layout changes)
+  useEffect(() => {
+    const onResize = () => resetToSection();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [sectionOn]);
+
   const handleHover = (e, index) => {
     setIsHovered(true);
     const { position, width, top, height } = calculatePositionAndWidth(index);

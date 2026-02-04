@@ -9,6 +9,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* Default gutters (Windows baseline) */
+  --siteGutter: 1rem; /* matches px-4 */
+  --siteMax: 80rem;
+  --siteMaxWide: calc(80rem + 60px); /* works/people baseline */
 }
 
 /* About Pretendard tuning (Windows rendering) */
