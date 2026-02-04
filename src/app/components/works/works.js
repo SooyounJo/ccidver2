@@ -588,7 +588,7 @@ export default function Works({ textColor, sectionOn }) {
                         type="button"
                         onClick={toggleExpanded}
                         aria-label={toggleAriaLabel}
-                        className={`${programme.className} font-semibold text-[1.125rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity`}
+                        className={`${programme.className} font-semibold text-[1.125rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-5 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
                       >
                         more
                       </button>
