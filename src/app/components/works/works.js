@@ -211,10 +211,12 @@ export default function Works({ textColor, sectionOn }) {
     .filter(isValidYearProject)
     .sort((a, b) => Number(b.year) - Number(a.year));
   const initialYearProjects = projectsAll.filter((p) => p.year === INITIAL_YEAR);
-  const collapsedProjects = (initialYearProjects.length > 0 ? initialYearProjects : projectsAll).slice(0, 3);
+  // Collapsed: show 3 full rows + 1 partially visible row (faded/blurred at bottom).
+  const collapsedProjects = (initialYearProjects.length > 0 ? initialYearProjects : projectsAll).slice(0, 4);
   const visibleProjects = isExpanded ? projectsAll : collapsedProjects;
 
   const hasMore = projectsAll.length > collapsedProjects.length;
+  const COLLAPSED_ROW_H = 192;
   const toggleAriaLabel = isExpanded
     ? (lang === "kr" ? "접기" : "Collapse")
     : (lang === "kr" ? "더보기" : "More");
@@ -240,9 +242,9 @@ export default function Works({ textColor, sectionOn }) {
     const clientKey = String(p?.client || "").toLowerCase();
     const isCJ = clientKey === "cj cgv & naver cloud";
     // Base (non-hover) size should stay at the original 197.33×160 feel.
-    const contentH = 160;
+    const contentH = 150;
     const rowH = contentH + 32;
-    const contentHHover = 360;
+    const contentHHover = 280;
     const rowHHover = contentHHover + 32;
     const hasTwoImages = Array.isArray(p?.images) && p.images.length === 2;
     // On hover, always collapse to a single "hero" image (matches the intended interaction).
@@ -290,7 +292,7 @@ export default function Works({ textColor, sectionOn }) {
               <div className={`${pxGrotesk.className} tracking-[-0.03em] flex flex-col`}>
               {/* Title block: pb 5px */}
               <div className="pb-[5px]">
-                <div className="text-[24px] leading-[1.45] font-medium text-primaryB w-[220px]">
+                <div className="text-[22px] leading-[1.45] font-medium text-primaryB w-[220px]">
                   {isCJ ? (
                     <>
                       <p className="m-0">CJ CGV &amp; NAVER</p>
@@ -312,7 +314,7 @@ export default function Works({ textColor, sectionOn }) {
         {/* Middle: meta (≈296px) */}
         <div className="lg:basis-[296px] lg:flex-none px-1 md:px-3 lg:px-0">
           <div
-            className={`${pxGrotesk.className} h-full flex flex-col text-[1rem] leading-[1.45]`}
+            className={`${pxGrotesk.className} h-full flex flex-col text-[0.95rem] leading-[1.45]`}
           >
             {/* Title + description block (Frame 3 + Frame 2) */}
             {/* Figma: title→names spacing is 17px */}
@@ -421,7 +423,7 @@ export default function Works({ textColor, sectionOn }) {
               <>
                 {p.images[0] ? (
                   <div
-                    className={`w-full bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity,transform] duration-300 ease-out ${
+                    className={`w-full bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity,transform] duration-300 ease-out ${
                       !isHover && hasTwoImages ? "lg:w-[197.33px]" : "lg:w-[197.33px]"
                     } ${isHover && useHeroOnHover ? "lg:flex-1 lg:w-auto" : ""}`}
                     style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
@@ -448,7 +450,7 @@ export default function Works({ textColor, sectionOn }) {
                   </div>
                 ) : (
                   <GreyPlaceholder
-                    className={`w-full bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                    className={`w-full bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
                       "lg:w-[197.33px]"
                     } ${isHover && useHeroOnHover ? "lg:flex-1 lg:w-auto" : ""}`}
                     style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
@@ -457,7 +459,7 @@ export default function Works({ textColor, sectionOn }) {
 
                 {p.images[1] ? (
                   <div
-                    className={`w-full bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity,transform] duration-300 ease-out ${
+                    className={`w-full bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity,transform] duration-300 ease-out ${
                       "lg:w-[197.33px]"
                     } ${isHover && useHeroOnHover ? "lg:w-0 lg:max-w-0 lg:opacity-0" : ""}`}
                     style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
@@ -470,7 +472,7 @@ export default function Works({ textColor, sectionOn }) {
                   </div>
                 ) : (
                   <GreyPlaceholder
-                    className={`w-full bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                    className={`w-full bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
                       "lg:w-[197.33px]"
                     } ${
                       isHover && useHeroOnHover
@@ -485,7 +487,7 @@ export default function Works({ textColor, sectionOn }) {
                   (p.images[2] ? (
                     String(p.images[2]).toLowerCase().endsWith(".mp4") ? (
                       <div
-                        className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                        className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
                           isHover && useHeroOnHover
                             ? "lg:w-0 lg:max-w-0 lg:opacity-0"
                             : "lg:opacity-100"
@@ -504,7 +506,7 @@ export default function Works({ textColor, sectionOn }) {
                       </div>
                     ) : (
                       <div
-                        className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                        className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
                           isHover && useHeroOnHover
                             ? "lg:w-0 lg:max-w-0 lg:opacity-0"
                             : "lg:opacity-100"
@@ -520,7 +522,7 @@ export default function Works({ textColor, sectionOn }) {
                     )
                   ) : (
                     <GreyPlaceholder
-                      className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden flex-none transition-[width,height,opacity] duration-300 ease-out ${
+                      className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
                         isHover && useHeroOnHover ? "lg:w-0 lg:max-w-0 lg:opacity-0" : ""
                       }`}
                       style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
@@ -529,10 +531,10 @@ export default function Works({ textColor, sectionOn }) {
               </>
             ) : (
               <>
-                <GreyPlaceholder className="w-full lg:w-[197.33px]" />
-                <GreyPlaceholder className="w-full lg:w-[197.33px]" />
+                <GreyPlaceholder className="w-full lg:w-[197.33px] rounded-[3px]" />
+                <GreyPlaceholder className="w-full lg:w-[197.33px] rounded-[3px]" />
                 {!(p.year === "2025" && p.client === "CJ CGV & Naver Cloud") && (
-                  <GreyPlaceholder className="w-full lg:w-[197.33px]" />
+                  <GreyPlaceholder className="w-full lg:w-[197.33px] rounded-[3px]" />
                 )}
               </>
             )}
@@ -549,31 +551,9 @@ export default function Works({ textColor, sectionOn }) {
         ref={rootRef}
         className="text-primaryB w-full font-[400] relative py-8 lg:py-10 px-4"
       >
-        {/* Font toggle controls (hel / pre) on the right */}
-        <div className="hidden lg:flex absolute right-20 top-10 z-[550] gap-2 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-primaryB/20 shadow-sm">
-          <button
-            type="button"
-            onClick={() => setContentFont("hel")}
-            className={`${pxGrotesk.className} border border-primaryB/60 px-2.5 py-1 rounded-full text-[0.75rem] ${contentFont === "hel" ? "bg-primaryB text-white" : "text-primaryB"}`}
-            aria-pressed={contentFont === "hel"}
-          >
-            hel
-          </button>
-          <button
-            type="button"
-            onClick={() => setContentFont("pre")}
-            className={`${pxGrotesk.className} border border-primaryB/60 px-2.5 py-1 rounded-full text-[0.75rem] ${contentFont === "pre" ? "bg-primaryB text-white" : "text-primaryB"}`}
-            aria-pressed={contentFont === "pre"}
-          >
-            pre
-          </button>
-        </div>
         {visibleProjects.length > 0 ? (
           <div className="relative z-10 text-primaryB">
-            <div
-              className={`mx-auto w-[80rem] ${isExpanded ? "h-auto" : "h-[52.5rem]"} flex flex-col`}
-              style={{ backgroundColor: "transparent" }}
-            >
+            <div className="mx-auto w-[80rem] flex flex-col" style={{ backgroundColor: "transparent" }}>
               {/* Header row */}
               <div className="h-[3.875rem] border-b border-primaryB flex items-end pb-4">
                 <motion.div
@@ -587,48 +567,64 @@ export default function Works({ textColor, sectionOn }) {
               <div className="flex-1 flex flex-col">
                 <motion.div
                   animate={contentControls}
-                  className={`relative ${isExpanded ? "flex-none overflow-visible" : "flex-1 overflow-y-auto"} pt-[1rem] space-y-[1rem]`}
+                  className={`relative pt-[1rem] space-y-[1rem] ${
+                    isExpanded ? "overflow-visible" : "overflow-hidden"
+                  }`}
+                  style={
+                    isExpanded
+                      ? undefined
+                      : {
+                          // ~3.5 rows visible (4th line peeks) then fade/blur.
+                          maxHeight: "46.5rem",
+                        }
+                  }
                 >
-                  {visibleProjects.map((p, idx) => renderRow(p, idx, "list"))}
-                  {(hasMore || isExpanded) && (
+                  {!isExpanded && hasMore && (
                     <div
-                      className={`pt-5 pb-6 flex justify-center sticky ${
-                        isExpanded ? "bottom-6" : "bottom-4"
-                      } z-20`}
+                      className="absolute left-1/2 z-40 -translate-x-1/2"
+                      style={{ top: `${COLLAPSED_ROW_H * 3 + 80}px` }}
                     >
                       <button
                         type="button"
                         onClick={toggleExpanded}
                         aria-label={toggleAriaLabel}
-                        className={`${pxGrotesk.className} group border-2 border-primaryB w-12 h-12 lg:w-14 lg:h-14 rounded-full flex items-center justify-center text-primaryB hover:bg-primaryB hover:text-primaryW transition-colors`}
+                        className={`${programme.className} font-semibold text-[1.125rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity`}
                       >
-                        <span
-                          aria-hidden="true"
-                          className={`transition-transform duration-300 ease-out ${
-                            isExpanded ? "rotate-180" : "rotate-0"
-                          }`}
-                        >
-                          <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="block relative -top-0.5"
-                          >
-                            <path
-                              d="M6 9L12 15L18 9"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </span>
+                        more
                       </button>
                     </div>
                   )}
+                  {visibleProjects.map((p, idx) => (
+                    <div key={`list-wrap-${p?.year || "y"}-${idx}-${p?.title || "t"}`}>
+                      {renderRow(p, idx, "list")}
+                    </div>
+                  ))}
+                  {!isExpanded && hasMore && (
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-0 right-0 z-30"
+                      style={{
+                        height: `${Math.round(COLLAPSED_ROW_H * 1.2)}px`,
+                        bottom: 0,
+                        background:
+                          "linear-gradient(to bottom, rgba(224,224,255,0) 0%, rgba(224,224,255,0.85) 70%, rgba(224,224,255,1) 100%)",
+                      }}
+                    />
+                  )}
                 </motion.div>
+
+                {isExpanded && (
+                  <div className="pt-8 pb-2 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={toggleExpanded}
+                      aria-label={toggleAriaLabel}
+                      className={`${programme.className} font-semibold text-[1.125rem] tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity`}
+                    >
+                      close
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

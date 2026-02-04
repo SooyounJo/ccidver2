@@ -77,30 +77,30 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
           <div className={`w-full lg:pb-[5vh] ${displayId === "who" ? "mt-10" : "mt-14"}`}>
             {displayId === "who" ? (
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
                   <img src="/img/about_1.png" alt="About 1" className="object-cover w-full h-full" />
                 </div>
-                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
                   <img src="/img/about_2.png" alt="About 2" className="object-cover w-full h-full" />
                 </div>
               </div>
             ) : displayId === "sectors" ? (
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
                   <img src="/img/about_3.png" alt="About 3" className="w-full h-full object-cover" />
                 </div>
                 <div className="hidden md:block" />
               </div>
             ) : (
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
                   <img
                     src="/img/about_4.png"
                     alt="About 4"
                     className="w-full h-full object-cover object-center"
                   />
                 </div>
-                <div className="w-full aspect-[16/9] relative overflow-hidden">
+                <div className="w-full aspect-[16/9] relative overflow-hidden rounded-[3px]">
                   <img
                     src="/img/about_5.png"
                     alt="About 5"

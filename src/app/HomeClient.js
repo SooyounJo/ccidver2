@@ -319,7 +319,7 @@ export default function HomeClient() {
                 "linear-gradient(to bottom, rgba(220,220,255,0.9) 0%, rgba(220,220,255,0.45) 55%, rgba(240,240,236,0) 100%)",
             }}
           />
-          <div className="relative z-10 w-full max-w-[90rem]">
+          <div className="relative z-10 w-[calc(80rem+20px)] mx-auto">
             <Works textColor={BASE_TEXT} sectionOn={sectionOn} />
           </div>
         </section>
@@ -339,7 +339,7 @@ export default function HomeClient() {
                 "linear-gradient(to bottom, rgba(220,220,255,0.92) 0%, rgba(220,220,255,0.62) 40%, rgba(220,220,255,0.28) 70%, rgba(240,240,236,0) 100%)",
             }}
           />
-          <div className="relative z-10 w-full max-w-[80rem]">
+          <div className="relative z-10 w-[calc(80rem+20px)] mx-auto">
             <Members />
           </div>
         </section>

@@ -65,7 +65,7 @@ export default function Members() {
     return (
       <>
         <div className={`${imageColClass} col-span-1`}>
-          <div className="group relative h-[170px] overflow-hidden rounded-[19px]">
+          <div className="group relative w-[132px] h-[153px] overflow-hidden rounded-[3px]">
             <GreyPlaceholder className="absolute inset-0 w-full h-full" />
             {imageSrc && (
               <img

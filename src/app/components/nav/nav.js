@@ -10,6 +10,7 @@ export default function Nav({ sectionOn }) {
   const [boxHeight, setBoxHeight] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const linkRefs = useRef([]);
+  const sections = ["cover", "about", "works", "members", "contact"];
 
   const calculatePositionAndWidth = (index) => {
     const linkElement = linkRefs.current[index];
@@ -36,16 +37,17 @@ export default function Nav({ sectionOn }) {
 
   // Set initial position and width based on sectionOn
   useEffect(() => {
-    const sections = ["cover", "about", "works", "members", "contact"];
     const index = sections.indexOf(sectionOn); // Find the index of the section
-    if (index !== -1 && isHovered) {
+    if (index === -1) return;
+    const rafId = requestAnimationFrame(() => {
       const { position, width, top, height } = calculatePositionAndWidth(index);
       setBoxPosition(position);
       setBoxWidth(width);
       setBoxTop(top);
       setBoxHeight(height);
-    }
-  }, [sectionOn, isHovered]);
+    });
+    return () => cancelAnimationFrame(rafId);
+  }, [sectionOn, sections]);
 
   const handleHover = (e, index) => {
     setIsHovered(true);
@@ -56,8 +58,17 @@ export default function Nav({ sectionOn }) {
     setBoxHeight(height);
   };
 
+  const handleClick = (index, id) => {
+    const { position, width, top, height } = calculatePositionAndWidth(index);
+    setIsHovered(true);
+    setBoxPosition(position);
+    setBoxWidth(width);
+    setBoxTop(top);
+    setBoxHeight(height);
+    document.querySelector(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const resetToSection = () => {
-    const sections = ["cover", "about", "works", "members", "contact"];
     const index = sections.indexOf(sectionOn);
     if (index !== -1) {
       const { position, width, top, height } = calculatePositionAndWidth(index);
@@ -67,6 +78,9 @@ export default function Nav({ sectionOn }) {
       setBoxHeight(height);
     }
   };
+
+  const showBox = isHovered || sections.includes(sectionOn);
+  const isCover = sectionOn === "cover";
 
   return (
     <div
@@ -78,12 +92,8 @@ export default function Nav({ sectionOn }) {
         <div className="group relative z-[500] gap-12 4xl:gap-20 lg:flex justify-center w-fit mx-auto">
           <span
             className={`select-none pointer-events-none box-border z-[-1] transition-all duration-300 ease-out absolute px-2 border-[.12vw] ${
-              !isHovered ? 'opacity-0' : 'opacity-100'
-            } ${
-              sectionOn === "cover"
-                ? "border-transparent group-hover:border-primaryW/80"
-                : "border-primaryB/60"
-            }`}
+              showBox ? "opacity-100" : "opacity-0"
+            } ${isCover ? "border-primaryW/80" : "border-primaryB/60"}`}
             style={{
               height: `${boxHeight}px`,
               width: `${boxWidth}px`,
@@ -102,7 +112,10 @@ export default function Nav({ sectionOn }) {
             <li
               key={id}
               onMouseEnter={(e) => handleHover(e, index)}
-              onMouseLeave={resetToSection}
+              onMouseLeave={() => {
+                setIsHovered(false);
+                resetToSection();
+              }}
             >
               <a
                 href={id}
@@ -114,9 +127,7 @@ export default function Nav({ sectionOn }) {
                 }`}
                 onClick={(e) => {
                   e.preventDefault();
-                  document
-                    .querySelector(id)
-                    ?.scrollIntoView({ behavior: "smooth" });
+                  handleClick(index, id);
                 }}
               >
                 {label}
