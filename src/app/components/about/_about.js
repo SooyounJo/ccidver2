@@ -37,7 +37,7 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
   const showSectorsImage = displayId === "sectors";
 
   return (
-    <div className={`w-full relative z-10 antialiased ${pretendardR.className}`}>
+    <div className={`w-full relative z-10 subpixel-antialiased about-text-tuning ${pretendardR.className}`}>
       {/* Keep content aligned left; keep content box sizes like before */}
       <div className="grid grid-cols-1 lg:grid-cols-[296px_1fr] gap-y-8 lg:gap-y-0 lg:gap-x-8 items-start">
         {/* Left nav column */}
@@ -78,7 +78,7 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
             {leftParagraph ? <p className="text-[16px] leading-[1.45]">{leftParagraph}</p> : null}
             {rightParagraph ? (
-              <p className="text-[15px] leading-[1.6]">{rightParagraph}</p>
+              <p className="text-[16px] leading-[1.45] font-[450]">{rightParagraph}</p>
             ) : null}
           </div>
 

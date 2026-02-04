@@ -22,10 +22,11 @@ export const pretendardB = localFont({
 });
 
 export const pretendardR = localFont({
-  src: '../../public/fonts/PretendardVariable.ttf',
-  weight: '100 900',
-  style: 'normal',
-  display: 'swap',
+  // Variable font for smooth intermediate weights (e.g., 450)
+  src: "../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+  weight: "100 900",
+  style: "normal",
+  display: "swap",
 });
 
 export const neuehaas = localFont({

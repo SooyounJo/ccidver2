@@ -11,6 +11,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* About Pretendard tuning (Windows rendering) */
+.about-text-tuning {
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   html {
