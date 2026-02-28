@@ -11,9 +11,9 @@ export default function Works({ textColor, sectionOn }) {
   const [worksInfo, setWorksInfo] = useState(sheetsStatic?.works || []);
   const { lang } = useLanguageStore();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [hoveredRowKey, setHoveredRowKey] = useState(null);
-  const [hoveredRowMedia, setHoveredRowMedia] = useState([]);
-  const [hoveredMediaIndex, setHoveredMediaIndex] = useState(0);
+  const [expandedRowKey, setExpandedRowKey] = useState(null);
+  const [expandedRowMedia, setExpandedRowMedia] = useState([]);
+  const [expandedMediaIndex, setExpandedMediaIndex] = useState(0);
   const headerControls = useAnimation();
   const lineControls = useAnimation();
   const contentControls = useAnimation();
@@ -60,17 +60,17 @@ export default function Works({ textColor, sectionOn }) {
     };
   }, [sectionOn, headerControls, lineControls, contentControls]);
 
-  // Slideshow on hover-expanded row: rotate available media every 5s.
+  // Slideshow on clicked-expanded row: rotate available media every 5s.
   useEffect(() => {
-    if (!hoveredRowKey) return;
-    if (!Array.isArray(hoveredRowMedia) || hoveredRowMedia.length <= 1) return;
+    if (!expandedRowKey) return;
+    if (!Array.isArray(expandedRowMedia) || expandedRowMedia.length <= 1) return;
 
     const id = window.setInterval(() => {
-      setHoveredMediaIndex((prev) => (prev + 1) % hoveredRowMedia.length);
+      setExpandedMediaIndex((prev) => (prev + 1) % expandedRowMedia.length);
     }, 5000);
 
     return () => window.clearInterval(id);
-  }, [hoveredRowKey, hoveredRowMedia]);
+  }, [expandedRowKey, expandedRowMedia]);
 
   const rows = Array.isArray(worksInfo) ? worksInfo : [];
   // The sheet is organized in 3-row blocks:
@@ -226,6 +226,9 @@ export default function Works({ textColor, sectionOn }) {
       const next = !prev;
       // When collapsing, return to the top of the Works section so the first rows are visible.
       if (prev && !next) {
+        setExpandedRowKey(null);
+        setExpandedRowMedia([]);
+        setExpandedMediaIndex(0);
         window.requestAnimationFrame(() => {
           document
             .querySelector("#works")
@@ -250,7 +253,7 @@ export default function Works({ textColor, sectionOn }) {
     // On hover, always collapse to a single "hero" image (matches the intended interaction).
     const useHeroOnHover = true;
     const rowKey = `${keyPrefix}-${p.year}-${idx}-${p.title}`;
-    const isHover = hoveredRowKey === rowKey;
+    const isRowExpanded = expandedRowKey === rowKey;
     const mediaCandidates = Array.isArray(p?.images)
       ? p.images
           .slice(0, 3)
@@ -261,33 +264,52 @@ export default function Works({ textColor, sectionOn }) {
       p.year === "2025" && p.client === "CJ CGV & Naver Cloud"
         ? mediaCandidates.slice(0, 2)
         : mediaCandidates;
-    const heroMedia =
-      isHover && hoveredRowMedia.length > 0 ? hoveredRowMedia[hoveredMediaIndex] : mediaList[0];
+    const heroMedia = isRowExpanded && expandedRowMedia.length > 0 ? expandedRowMedia[expandedMediaIndex] : mediaList[0];
     const heroIsVideo = String(heroMedia || "").toLowerCase().endsWith(".mp4");
 
     return (
       <div
         key={rowKey}
-        onMouseEnter={() => {
-          setHoveredRowKey(rowKey);
-          setHoveredRowMedia(mediaList);
-          setHoveredMediaIndex(0);
+        role="button"
+        tabIndex={0}
+        onClick={() => {
+          setExpandedRowKey((prev) => {
+            const next = prev === rowKey ? null : rowKey;
+            if (next) {
+              setExpandedRowMedia(mediaList);
+              setExpandedMediaIndex(0);
+            } else {
+              setExpandedRowMedia([]);
+              setExpandedMediaIndex(0);
+            }
+            return next;
+          });
         }}
-        onMouseLeave={() => {
-          setHoveredRowKey(null);
-          setHoveredRowMedia([]);
-          setHoveredMediaIndex(0);
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault();
+          setExpandedRowKey((prev) => {
+            const next = prev === rowKey ? null : rowKey;
+            if (next) {
+              setExpandedRowMedia(mediaList);
+              setExpandedMediaIndex(0);
+            } else {
+              setExpandedRowMedia([]);
+              setExpandedMediaIndex(0);
+            }
+            return next;
+          });
         }}
-        className={`pt-0 pb-[32px] overflow-hidden transition-[max-height] duration-300 ease-out ${
+        className={`group pt-0 pb-[32px] overflow-hidden transition-[max-height] duration-300 ease-out outline-none ${
           isLast ? "" : "border-b border-primaryB"
-        }`}
+        } cursor-pointer hover:opacity-[0.96] focus-visible:ring-1 focus-visible:ring-primaryB/50`}
         style={{
-          maxHeight: isHover ? `${rowHHover}px` : `${rowH}px`,
+          maxHeight: isRowExpanded ? `${rowHHover}px` : `${rowH}px`,
         }}
       >
         <div
           className="flex flex-col lg:flex-row gap-y-4 lg:gap-y-0 lg:gap-x-8 items-stretch transition-[height] duration-300 ease-out"
-          style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+          style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
         >
           {/* Left: Client + Year (296×contentH) */}
           <div className="lg:basis-[296px] lg:flex-none overflow-hidden">
@@ -322,7 +344,7 @@ export default function Works({ textColor, sectionOn }) {
             {/* Figma: title→names spacing is 17px */}
             <div
               className={`min-w-0 pr-2 lg:pr-4 flex flex-col gap-[17px] w-full max-w-[17.625rem] ${
-                isHover ? "overflow-visible" : "overflow-hidden"
+                isRowExpanded ? "overflow-visible" : "overflow-hidden"
               }`}
             >
               {/* Title: 16px, weight 500, full opacity */}
@@ -343,7 +365,7 @@ export default function Works({ textColor, sectionOn }) {
               </span>
 
               {/* Expanded body uses the old "names" slot */}
-              {isHover ? (
+              {isRowExpanded ? (
                 <div
                   className="opacity-80 text-[1rem] leading-[1.45] whitespace-pre-wrap"
                   style={
@@ -396,7 +418,7 @@ export default function Works({ textColor, sectionOn }) {
             </div>
 
             {/* Tags pinned to bottom (Frame 1) */}
-            {!isHover && Array.isArray(p.categories) && p.categories.length > 0 && (
+            {!isRowExpanded && Array.isArray(p.categories) && p.categories.length > 0 && (
               <div className="mt-auto pt-[1.5rem] flex flex-wrap gap-[0.625rem]">
                 {[...p.categories]
                   .sort((a, b) => (a === "Cooperation") - (b === "Cooperation"))
@@ -418,7 +440,7 @@ export default function Works({ textColor, sectionOn }) {
           {/* Figma: image grid gap 16px */}
           <div
             className={`flex flex-wrap lg:flex-nowrap gap-[1rem] transition-[gap] duration-300 ease-out ${
-              isHover && useHeroOnHover ? "lg:gap-0" : ""
+              isRowExpanded && useHeroOnHover ? "lg:gap-0" : ""
             }`}
           >
             {Array.isArray(p.images) && p.images.length > 0 ? (
@@ -426,9 +448,9 @@ export default function Works({ textColor, sectionOn }) {
                 {p.images[0] ? (
                   <div
                     className={`w-full bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity,transform] duration-300 ease-out ${
-                      !isHover && hasTwoImages ? "lg:w-[197.33px]" : "lg:w-[197.33px]"
-                    } ${isHover && useHeroOnHover ? "lg:flex-1 lg:w-auto" : ""}`}
-                    style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                      !isRowExpanded && hasTwoImages ? "lg:w-[197.33px]" : "lg:w-[197.33px]"
+                    } ${isRowExpanded && useHeroOnHover ? "lg:flex-1 lg:w-auto" : ""}`}
+                    style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
                   >
                     {heroIsVideo ? (
                       <video
@@ -454,8 +476,8 @@ export default function Works({ textColor, sectionOn }) {
                   <GreyPlaceholder
                     className={`w-full bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
                       "lg:w-[197.33px]"
-                    } ${isHover && useHeroOnHover ? "lg:flex-1 lg:w-auto" : ""}`}
-                    style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                    } ${isRowExpanded && useHeroOnHover ? "lg:flex-1 lg:w-auto" : ""}`}
+                    style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
                   />
                 )}
 
@@ -463,8 +485,8 @@ export default function Works({ textColor, sectionOn }) {
                   <div
                     className={`w-full bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity,transform] duration-300 ease-out ${
                       "lg:w-[197.33px]"
-                    } ${isHover && useHeroOnHover ? "lg:w-0 lg:max-w-0 lg:opacity-0" : ""}`}
-                    style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                    } ${isRowExpanded && useHeroOnHover ? "lg:w-0 lg:max-w-0 lg:opacity-0" : ""}`}
+                    style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
                   >
                     <img
                       src={p.images[1]}
@@ -477,11 +499,11 @@ export default function Works({ textColor, sectionOn }) {
                     className={`w-full bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
                       "lg:w-[197.33px]"
                     } ${
-                      isHover && useHeroOnHover
+                      isRowExpanded && useHeroOnHover
                         ? "lg:w-0 lg:max-w-0 lg:opacity-0"
                         : ""
                     }`}
-                    style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                    style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
                   />
                 )}
 
@@ -490,11 +512,11 @@ export default function Works({ textColor, sectionOn }) {
                     String(p.images[2]).toLowerCase().endsWith(".mp4") ? (
                       <div
                         className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
-                          isHover && useHeroOnHover
+                          isRowExpanded && useHeroOnHover
                             ? "lg:w-0 lg:max-w-0 lg:opacity-0"
                             : "lg:opacity-100"
                         }`}
-                        style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                        style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
                       >
                         <video
                           src={p.images[2]}
@@ -509,11 +531,11 @@ export default function Works({ textColor, sectionOn }) {
                     ) : (
                       <div
                         className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
-                          isHover && useHeroOnHover
+                          isRowExpanded && useHeroOnHover
                             ? "lg:w-0 lg:max-w-0 lg:opacity-0"
                             : "lg:opacity-100"
                         }`}
-                        style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                        style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
                       >
                         <img
                           src={p.images[2]}
@@ -525,9 +547,9 @@ export default function Works({ textColor, sectionOn }) {
                   ) : (
                     <GreyPlaceholder
                       className={`w-full lg:w-[197.33px] bg-[#F6F0FF] overflow-hidden rounded-[3px] flex-none transition-[width,height,opacity] duration-300 ease-out ${
-                        isHover && useHeroOnHover ? "lg:w-0 lg:max-w-0 lg:opacity-0" : ""
+                        isRowExpanded && useHeroOnHover ? "lg:w-0 lg:max-w-0 lg:opacity-0" : ""
                       }`}
-                      style={{ height: isHover ? `${contentHHover}px` : `${contentH}px` }}
+                      style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
                     />
                   ))}
               </>
@@ -643,7 +665,7 @@ export default function Works({ textColor, sectionOn }) {
                   {!isExpanded && hasMore && (
                     <div
                       className="absolute left-1/2 z-40 -translate-x-1/2"
-                      style={{ top: `${COLLAPSED_ROW_H * 3 + 80}px` }}
+                      style={{ top: `${COLLAPSED_ROW_H * 3 + 140}px` }}
                     >
                       <button
                         type="button"

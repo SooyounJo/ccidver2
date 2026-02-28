@@ -2,6 +2,7 @@ import "./globals.css";
 import "./multilingual.css";
 // import { Inter } from "next/font/google";
 import { pxGrotesk } from "@/fonts/fonts";
+import CustomCursor from "@/app/components/common/CustomCursor";
 
 
 export const metadata = {
@@ -36,7 +37,10 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="ko" className={pxGrotesk.className}>
-      <body className={`overflow-x-hidden w-[100%] scrollbar-hide antialiased select-none`}>{children}</body>
+      <body className={`overflow-x-hidden w-[100%] scrollbar-hide antialiased select-none`}>
+        <CustomCursor />
+        {children}
+      </body>
     </html>
   );
 }

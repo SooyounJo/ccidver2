@@ -307,7 +307,7 @@ export default function HomeClient() {
           color: BASE_TEXT,
           borderColor: BASE_TEXT,
         }}
-        className="relative scrollbar-hide z-10 h-[100dvh] w-[100%] overflow-y-scroll snap-y snap-mandatory"
+        className="relative scrollbar-hide z-10 h-[100dvh] w-[100%] overflow-y-scroll snap-y snap-proximity"
       >
         <section
           id="cover"
@@ -363,7 +363,7 @@ export default function HomeClient() {
           style={{
             backgroundColor: "#E0E0FF",
           }}
-          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-start flex justify-center items-start pt-[14vh] lg:pt-[18vh] pb-[14vh] lg:pb-[18vh] overflow-visible"
+          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-none flex justify-center items-start pt-[14vh] lg:pt-[18vh] pb-[14vh] lg:pb-[18vh] overflow-visible"
         >
           <div
             aria-hidden="true"
@@ -391,7 +391,7 @@ export default function HomeClient() {
             backgroundColor: "#F0F0EC",
             color: BASE_TEXT,
           }}
-          className="relative z-10 w-[100%] min-h-[100dvh] snap-start flex justify-center items-start pt-24 pb-[16vh] lg:pb-[20vh] overflow-visible"
+          className="relative z-10 w-[100%] min-h-[100dvh] snap-none flex justify-center items-start pt-24 pb-[16vh] lg:pb-[20vh] overflow-visible"
         >
           <div
             aria-hidden="true"

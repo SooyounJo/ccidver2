@@ -15,6 +15,15 @@ html {
   --siteMaxWide: calc(80rem + 60px); /* works/people baseline */
 }
 
+/* Custom cursor: hide system cursor on desktop mouse */
+@media (hover: hover) and (pointer: fine) {
+  html,
+  body,
+  body * {
+    cursor: none !important;
+  }
+}
+
 /* About Pretendard tuning (Windows rendering) */
 .about-text-tuning {
   font-synthesis: none;
