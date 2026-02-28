@@ -55,9 +55,8 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
                     <button
                       type="button"
                       onClick={() => onChange?.(section.id)}
-                      className={`text-left leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em] ${
-                        isActive ? "font-[500] text-[#0f0f13]" : "font-[500] text-[#9D9C9C]"
-                      }`}
+                      className={`text-left leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em] ${isActive ? "font-[400] text-[#0f0f13]" : "font-[500] text-[#9D9C9C]"
+                        }`}
                     >
                       {section.title}
                     </button>
@@ -70,9 +69,8 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
 
         {/* Content area */}
         <div
-          className={`w-full lg:col-start-2 lg:col-span-1 transition-opacity duration-300 ease-in-out ${
-            isFade ? "opacity-100" : "opacity-0"
-          }`}
+          className={`w-full lg:col-start-2 lg:col-span-1 transition-opacity duration-300 ease-in-out ${isFade ? "opacity-100" : "opacity-0"
+            }`}
         >
           {/* Text boxes: keep the previous 2-column sizing */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
@@ -88,12 +86,13 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
 
           {showSectorsImage ? (
             <div className="w-full lg:pb-[5vh] mt-14">
-              {/* Match the same 2-col grid as the text; image aligns to English column width */}
+              {/* Same 2-col grid as text: left=English, right=Korean */}
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                {/* English column: top 2 rows (0% ~ 40%) */}
                 <CanvasKeyedImage
                   src="/img/about_3.png"
-                  alt="Sectors We Serve"
-                  className="w-full max-h-[42vh] overflow-visible"
+                  alt="Sectors We Serve - top logos"
+                  className="w-full overflow-visible"
                   mediaClassName="origin-top-left [transform:translateX(-15%)_translateY(-2%)_scale(1.24)]"
                   keyMin={235}
                   chromaTolerance={34}
@@ -101,8 +100,24 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
                   trim
                   trimPadding={2}
                   trimAlphaThreshold={12}
+                  cropYStart={0}
+                  cropYEnd={0.4}
                 />
-                <div className="hidden md:block" />
+                {/* Korean column: bottom 3 rows (40% ~ 100%) */}
+                <CanvasKeyedImage
+                  src="/img/about_3.png"
+                  alt="Sectors We Serve - bottom logos"
+                  className="w-full overflow-visible mt-3"
+                  mediaClassName="origin-top-left [transform:translateX(-15%)_translateY(-2%)_scale(1.24)]"
+                  keyMin={235}
+                  chromaTolerance={34}
+                  gamma={1.35}
+                  trim
+                  trimPadding={2}
+                  trimAlphaThreshold={12}
+                  cropYStart={0.4}
+                  cropYEnd={1}
+                />
               </div>
             </div>
           ) : null}

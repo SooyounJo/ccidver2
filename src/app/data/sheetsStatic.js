@@ -425,10 +425,10 @@ export const sheetsStatic = {
     ],
     [
       "Student Researchers",
-      "Hyunji Lee",
+      "Hyeonji Lee",
       "https://drive.google.com/thumbnail?id=1geRCTuicomKdZVGay12MRo4VM2eZ2P8I",
       "",
-      "Design Strategy\nUser Experience Design\nInteraction Design",
+      "Design Strategy\nInteraction Design\nPrototyping",
       ""
     ],
     [

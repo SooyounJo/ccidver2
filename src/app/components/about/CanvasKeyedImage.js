@@ -43,6 +43,14 @@ export default function CanvasKeyedImage({
    * Alpha threshold for considering a pixel as "content" when trimming.
    */
   trimAlphaThreshold = 10,
+  /**
+   * Vertical crop start ratio (0~1). 0 = top of image.
+   */
+  cropYStart = 0,
+  /**
+   * Vertical crop end ratio (0~1). 1 = bottom of image.
+   */
+  cropYEnd = 1,
 }) {
   const canvasRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
@@ -68,15 +76,22 @@ export default function CanvasKeyedImage({
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx) return;
 
-      const w = img.naturalWidth || img.width;
-      const h = img.naturalHeight || img.height;
-      if (!w || !h) return;
+      const fw = img.naturalWidth || img.width;
+      const fh = img.naturalHeight || img.height;
+      if (!fw || !fh) return;
+
+      // Apply vertical crop
+      const startY = Math.round(fh * Math.max(0, cropYStart));
+      const endY = Math.round(fh * Math.min(1, cropYEnd));
+      const w = fw;
+      const h = endY - startY;
+      if (h <= 0) return;
 
       canvas.width = w;
       canvas.height = h;
 
       ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(img, 0, 0, w, h);
+      ctx.drawImage(img, 0, startY, w, h, 0, 0, w, h);
 
       const imageData = ctx.getImageData(0, 0, w, h);
       const data = imageData.data;
@@ -172,7 +187,7 @@ export default function CanvasKeyedImage({
       img.onload = null;
       img.onerror = null;
     };
-  }, [img, src, keyMin, chromaTolerance, gamma]);
+  }, [img, src, keyMin, chromaTolerance, gamma, cropYStart, cropYEnd]);
 
   return (
     <div className={className}>
