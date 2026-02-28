@@ -55,7 +55,7 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
                     <button
                       type="button"
                       onClick={() => onChange?.(section.id)}
-                      className={`text-left leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em] ${isActive ? "font-[400] text-[#0f0f13]" : "font-[500] text-[#9D9C9C]"
+                      className={`text-left leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em] ${isActive ? "font-[400] text-[#0f0f13]" : "font-[400] text-[#9D9C9C]"
                         }`}
                     >
                       {section.title}
