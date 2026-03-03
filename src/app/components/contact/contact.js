@@ -1,8 +1,71 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sheetsStatic } from "@/app/data/sheetsStatic";
 import LiquidBackground from "@/app/components/landing/liquidBackground";
-import GradientText from "@/app/components/common/GradientText";
+import { motion, useAnimationFrame, useMotionValue, useTransform } from "framer-motion";
+
+function ShimmerEmail({ text }) {
+  const progress = useMotionValue(0);
+  const elapsedRef = useRef(0);
+  const lastTimeRef = useRef(null);
+
+  // Slow yoyo shimmer: left -> right -> left
+  const animationDurationMs = 11000;
+
+  useAnimationFrame((time) => {
+    if (lastTimeRef.current === null) {
+      lastTimeRef.current = time;
+      return;
+    }
+    const delta = time - lastTimeRef.current;
+    lastTimeRef.current = time;
+    elapsedRef.current += delta;
+
+    const fullCycle = animationDurationMs * 2;
+    const cycleTime = elapsedRef.current % fullCycle;
+    const t =
+      cycleTime < animationDurationMs
+        ? cycleTime / animationDurationMs
+        : 1 - (cycleTime - animationDurationMs) / animationDurationMs;
+    progress.set(t * 100);
+  });
+
+  useEffect(() => {
+    elapsedRef.current = 0;
+    lastTimeRef.current = null;
+    progress.set(0);
+  }, [progress]);
+
+  const bgPos = useTransform(progress, (p) => `${p}% 50%`);
+
+  return (
+    <span className="relative inline-block">
+      {/* Base: very subtle white so "transparent" areas are still visible */}
+      <span className="relative z-10 text-white/35">{text}</span>
+
+      {/* Highlight: bright white + glow, clipped to glyphs (no rectangle) */}
+      <motion.span
+        aria-hidden="true"
+        className="absolute inset-0 z-20 pointer-events-none select-none text-white"
+        style={{
+          backgroundImage:
+            "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 35%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.08) 65%, rgba(255,255,255,0) 100%)",
+          backgroundSize: "280% 100%",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: bgPos,
+          WebkitBackgroundClip: "text",
+          backgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          color: "transparent",
+          // Glow feeling (applies to glyphs only)
+          textShadow: "0 0 10px rgba(255,255,255,0.7), 0 0 22px rgba(255,255,255,0.35)",
+        }}
+      >
+        {text}
+      </motion.span>
+    </span>
+  );
+}
 
 export default function Contact({ borderRadius, sectionOn, colorPalette = 2 }) {
   const [aboutInfo] = useState(sheetsStatic?.about || null);
@@ -70,16 +133,9 @@ export default function Contact({ borderRadius, sectionOn, colorPalette = 2 }) {
           <a
             href={`mailto:${emailText}`}
             onClick={handleCopy}
-            className="leading-snug pb-1 relative group contact-email-glow hover:opacity-90 transition-opacity duration-300 inline-flex items-center gap-2"
+            className="leading-snug pb-1 relative group hover:opacity-90 transition-opacity duration-300 inline-flex items-center gap-2"
           >
-            <GradientText
-              colors={["#5B2BFF", "#FF4FD8", "#7BFFEB", "#B19EEF"]}
-              animationSpeed={8}
-              showBorder={false}
-              className="contact-gradient-text"
-            >
-              {emailText || "Loading..."}
-            </GradientText>
+            <ShimmerEmail text={emailText || "Loading..."} />
           </a>
           {isCopied && (
             <div className="pointer-events-none absolute top-full mt-2 text-[0.85em] text-white/80">

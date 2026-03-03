@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ABOUT_SECTIONS } from "./aboutData";
-import { pretendardR } from "@/fonts/fonts";
-import CanvasKeyedImage from "./CanvasKeyedImage";
+import { pretendardR, pxGrotesk } from "@/fonts/fonts";
 
 export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
   const [displayId, setDisplayId] = useState(activeId);
@@ -43,7 +42,9 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
         {/* Left nav column */}
         <div className="w-full lg:col-start-1 lg:col-span-1">
           {aboutStyle === 1 ? (
-            <h2 className="text-left font-[500] leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em]">
+            <h2
+              className={`text-left font-[500] leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em] ${pxGrotesk.className}`}
+            >
               {titleSection.title}
             </h2>
           ) : (
@@ -55,7 +56,7 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
                     <button
                       type="button"
                       onClick={() => onChange?.(section.id)}
-                      className={`text-left leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em] ${isActive ? "font-[400] text-[#0f0f13]" : "font-[400] text-[#9D9C9C]"
+                      className={`text-left leading-tight text-[22px] sm:text-[28px] tracking-[-0.03em] ${pxGrotesk.className} ${isActive ? "font-[400] text-[#0f0f13]" : "font-[400] text-[#9D9C9C]"
                         }`}
                     >
                       {section.title}
@@ -80,7 +81,7 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
               </p>
             ) : null}
             {rightParagraph ? (
-              <p className="hidden sm:block text-[16px] leading-[1.45] font-[450]">{rightParagraph}</p>
+              <p className="hidden sm:block text-[16px] leading-[1.55] font-[450]">{rightParagraph}</p>
             ) : null}
           </div>
 
@@ -88,36 +89,21 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
             <div className="w-full lg:pb-[5vh] mt-14">
               {/* Same 2-col grid as text: left=English, right=Korean */}
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                {/* English column: top 2 rows (0% ~ 40%) */}
-                <CanvasKeyedImage
-                  src="/img/about_3.png"
-                  alt="Sectors We Serve - top logos"
-                  className="w-full overflow-visible"
-                  mediaClassName="origin-top-left [transform:translateX(-15%)_translateY(-2%)_scale(1.24)]"
-                  keyMin={235}
-                  chromaTolerance={34}
-                  gamma={1.35}
-                  trim
-                  trimPadding={2}
-                  trimAlphaThreshold={12}
-                  cropYStart={0}
-                  cropYEnd={0.4}
-                />
-                {/* Korean column: bottom 3 rows (40% ~ 100%) */}
-                <CanvasKeyedImage
-                  src="/img/about_3.png"
-                  alt="Sectors We Serve - bottom logos"
-                  className="w-full overflow-visible mt-3"
-                  mediaClassName="origin-top-left [transform:translateX(-15%)_translateY(-2%)_scale(1.24)]"
-                  keyMin={235}
-                  chromaTolerance={34}
-                  gamma={1.35}
-                  trim
-                  trimPadding={2}
-                  trimAlphaThreshold={12}
-                  cropYStart={0.4}
-                  cropYEnd={1}
-                />
+                <div className="w-full md:col-span-2 flex justify-center">
+                  <img
+                    src="/img/logo.png"
+                    alt="Sectors We Serve"
+                    className={[
+                      "block w-full h-auto",
+                      // Fit within the combined (EN+KR) text width.
+                      "max-w-[980px] lg:max-w-[1160px]",
+                      // Slightly nudge left on desktop widths.
+                      "md:-translate-x-6",
+                      "select-none pointer-events-none",
+                    ].join(" ")}
+                    draggable={false}
+                  />
+                </div>
               </div>
             </div>
           ) : null}

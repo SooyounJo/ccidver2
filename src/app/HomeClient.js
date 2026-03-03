@@ -39,6 +39,7 @@ export default function HomeClient() {
   const [colorPalette] = useState(2);
   const [aboutStyle] = useState(2);
   const [aboutInfo, setAboutInfo] = useState(sheetsStatic?.about || []);
+  const [coverBottomFade, setCoverBottomFade] = useState(0); // 0..1
   const ABOUT_ORDER = ["who", "sectors", "methodology"];
 
   // OS-specific layout vars (mac desktop: fixed 80px gutters like Figma).
@@ -68,6 +69,33 @@ export default function HomeClient() {
 
   useEffect(() => {
     setAboutInfo(sheetsStatic?.about || []);
+  }, []);
+
+  // Cover: bottom white gradient should appear only after the first scroll.
+  useEffect(() => {
+    const mainEl = mainRef.current;
+    if (!mainEl) return;
+
+    let raf = 0;
+    const clamp01 = (n) => Math.max(0, Math.min(1, n));
+    const update = () => {
+      raf = 0;
+      const st = mainEl.scrollTop || 0;
+      // 0 at top, then fade in over the first ~180px of scroll.
+      const t = st <= 1 ? 0 : clamp01((st - 1) / 180);
+      setCoverBottomFade(t);
+    };
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(update);
+    };
+
+    onScroll();
+    mainEl.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      mainEl.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -316,7 +344,10 @@ export default function HomeClient() {
           <div className="relative z-10 w-full max-w-[var(--siteMax)] px-[var(--siteGutter)] mx-auto">
             <Cover textColor={BASE_TEXT} />
           </div>
-          <div className="absolute bottom-0 left-0 w-full h-[3vh] pointer-events-none z-0 flex">
+          <div
+            className="absolute bottom-0 left-0 w-full h-[3vh] pointer-events-none z-0 flex"
+            style={{ opacity: coverBottomFade, transition: "opacity 380ms ease-out" }}
+          >
             <div
               className="w-[44.27%] h-full"
               style={{
