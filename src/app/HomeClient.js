@@ -40,6 +40,7 @@ export default function HomeClient() {
   const [aboutStyle] = useState(2);
   const [aboutInfo, setAboutInfo] = useState(sheetsStatic?.about || []);
   const [coverBottomFade, setCoverBottomFade] = useState(0); // 0..1
+  const [contactReveal, setContactReveal] = useState(0); // 0..1 (used to fade members->contact overlay)
   const ABOUT_ORDER = ["who", "sectors", "methodology"];
 
   // OS-specific layout vars (mac desktop: fixed 80px gutters like Figma).
@@ -264,6 +265,30 @@ export default function HomeClient() {
     return () => observer.disconnect();
   }, []);
 
+  // Contact reveal ratio within the main scroll container (used for members->contact dissolve).
+  useEffect(() => {
+    const mainEl = mainRef.current;
+    if (!mainEl) return;
+
+    const contactSection = mainEl.querySelector("#contact");
+    if (!contactSection) return;
+
+    const clamp01 = (n) => Math.max(0, Math.min(1, n));
+    const thresholds = Array.from({ length: 21 }, (_, i) => i / 20);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const raw = entry?.intersectionRatio ?? 0;
+        // Make it react early, but reach 1 only when contact is mostly visible.
+        const t = clamp01((raw - 0.02) / 0.55);
+        setContactReveal(t);
+      },
+      { threshold: thresholds, root: mainEl }
+    );
+
+    observer.observe(contactSection);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const contactSection = document.querySelector("#contact");
 
@@ -346,6 +371,27 @@ export default function HomeClient() {
         }}
         className="relative scrollbar-hide z-10 h-[100dvh] w-[100%] overflow-y-scroll snap-y snap-proximity"
       >
+        {/* Members -> Contact dissolve overlay (visible only while in Members) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed left-0 right-0 bottom-0 z-[12] h-[46vh] md:h-[52vh]"
+          style={{
+            // Keep the dissolve active whenever the viewport is "between" Members and Contact.
+            // Using intersection-driven ratios avoids abrupt toggles caused by snap/sectionOn switching.
+            opacity: Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal),
+            transition: "opacity 420ms cubic-bezier(0.16, 1, 0.3, 1)",
+            backdropFilter: `blur(${8 + Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal) * 14}px) saturate(1.05)`,
+            WebkitBackdropFilter: `blur(${8 + Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal) * 14}px) saturate(1.05)`,
+            // Fade the blur itself upward so there is no hard cutoff edge.
+            maskImage:
+              "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.18) 76%, rgba(0,0,0,0) 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.18) 76%, rgba(0,0,0,0) 100%)",
+            // Light tint to blend Members into Contact smoothly.
+            background:
+              "linear-gradient(to top, rgba(240,240,236,0.0) 0%, rgba(240,240,236,0.10) 30%, rgba(240,240,236,0.22) 58%, rgba(240,240,236,0.36) 78%, rgba(240,240,236,0.52) 100%)",
+          }}
+        />
         <section
           id="cover"
           className="relative z-10 w-[100%] h-[100%] snap-start flex items-start justify-start"
@@ -396,7 +442,7 @@ export default function HomeClient() {
             }}
           />
           <div className="relative z-10 w-full max-w-[var(--siteMax)] px-[var(--siteGutter)] mx-auto h-full flex flex-col justify-start">
-            <div className="w-full pt-[12vh] pb-[34vh] lg:pb-[38vh]">
+            <div className="w-full pt-[7vh] md:pt-[8vh] lg:pt-[9vh] pb-[34vh] lg:pb-[38vh]">
               <AboutIntro activeId={activeAboutId} onChange={setActiveAboutId} aboutStyle={aboutStyle} />
             </div>
           </div>
@@ -406,14 +452,14 @@ export default function HomeClient() {
           style={{
             backgroundColor: "#E0E0FF",
           }}
-          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-none flex justify-center items-start pt-[14vh] lg:pt-[18vh] pb-[14vh] lg:pb-[18vh] overflow-visible"
+          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-none flex justify-center items-start pt-12 pb-[14vh] lg:pb-[18vh] overflow-visible"
         >
           <div
             aria-hidden="true"
             className="pointer-events-none absolute left-0 right-0 top-0 h-[24vh] z-10"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(226,226,255,0.95) 0%, rgba(226,226,255,0.7) 45%, rgba(226,226,255,0.2) 80%, rgba(226,226,255,0) 100%)",
+                "linear-gradient(to bottom, rgba(224,224,255,0.95) 0%, rgba(224,224,255,0.7) 45%, rgba(224,224,255,0.2) 80%, rgba(224,224,255,0) 100%)",
             }}
           />
           <div
@@ -421,7 +467,7 @@ export default function HomeClient() {
             className="pointer-events-none absolute left-0 right-0 bottom-0 h-[22vh] z-10"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(220,220,255,0.95) 0%, rgba(220,220,255,0.75) 55%, rgba(220,220,255,1) 100%)",
+                "linear-gradient(to bottom, rgba(224,224,255,0.95) 0%, rgba(224,224,255,0.75) 55%, rgba(224,224,255,1) 100%)",
             }}
           />
           <div className="relative z-10 w-full max-w-[var(--siteMaxWide)] px-[var(--siteGutter)] mx-auto">
@@ -434,11 +480,11 @@ export default function HomeClient() {
             backgroundColor: "#F0F0EC",
             color: BASE_TEXT,
           }}
-          className="relative z-10 w-[100%] min-h-[100dvh] snap-none flex justify-center items-start pt-24 pb-[16vh] lg:pb-[20vh] overflow-visible"
+          className="relative z-10 w-[100%] min-h-[100dvh] snap-none flex justify-center items-start pt-[5.5rem] pb-[16vh] lg:pb-[20vh] overflow-visible"
         >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute top-0 left-0 right-0 h-[100vh] z-0"
+            className="pointer-events-none absolute inset-0 z-0"
             style={{
               background:
                 "linear-gradient(to bottom, rgba(220,220,255,0.92) 0%, rgba(220,220,255,0.62) 40%, rgba(220,220,255,0.28) 70%, rgba(240,240,236,0) 100%)",

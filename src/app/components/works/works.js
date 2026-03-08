@@ -639,7 +639,7 @@ export default function Works({ textColor, sectionOn }) {
                         type="button"
                         onClick={toggleExpanded}
                         aria-label={toggleAriaLabel}
-                        className={`${programme.className} font-semibold text-[1.05rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity`}
+                        className={`${programme.className} font-semibold text-[1.05rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-5 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
                       >
                         close
                       </button>
@@ -650,52 +650,46 @@ export default function Works({ textColor, sectionOn }) {
                 {/* Desktop (lg+) */}
                 <motion.div
                   animate={contentControls}
-                  className={`hidden lg:block relative pt-[1rem] space-y-[1rem] ${
-                    isExpanded ? "overflow-visible" : "overflow-hidden"
-                  }`}
-                  style={
-                    isExpanded
-                      ? undefined
-                      : {
-                          // ~3.5 rows visible (4th line peeks) then fade/blur.
-                          maxHeight: "46.5rem",
-                        }
-                  }
+                  className="hidden lg:block relative pt-[1rem]"
                 >
+                  {/* Collapsed/expanded container: animate max-height for a smoother "unfold" */}
+                  <div
+                    className="relative space-y-[1rem] overflow-hidden transition-[max-height] duration-700 ease-out"
+                    style={{
+                      maxHeight: isExpanded ? "200rem" : "46.5rem",
+                      // Use a gradient mask to fade out the clipped edge without a visible seam line.
+                      ...(isExpanded || !hasMore
+                        ? null
+                        : {
+                            maskImage:
+                              "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 72%, rgba(0,0,0,0.25) 88%, rgba(0,0,0,0) 100%)",
+                            WebkitMaskImage:
+                              "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 72%, rgba(0,0,0,0.25) 88%, rgba(0,0,0,0) 100%)",
+                          }),
+                    }}
+                  >
+                    {visibleProjects.map((p, idx) => {
+                      const isLast = idx === visibleProjects.length - 1;
+                      return (
+                        <div key={`list-wrap-${p?.year || "y"}-${idx}-${p?.title || "t"}`}>
+                          {renderRow(p, idx, "list", isLast)}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* More button (separated from the clipped container so it never gets cut) */}
                   {!isExpanded && hasMore && (
-                    <div
-                      className="absolute left-1/2 z-40 -translate-x-1/2"
-                      style={{ top: `${COLLAPSED_ROW_H * 3 + 140}px` }}
-                    >
+                    <div className="pt-6 flex justify-center">
                       <button
                         type="button"
                         onClick={toggleExpanded}
                         aria-label={toggleAriaLabel}
-                        className={`${programme.className} font-semibold text-[1.125rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-5 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
+                        className={`${programme.className} font-semibold text-[1.125rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-6 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
                       >
                         more
                       </button>
                     </div>
-                  )}
-                  {visibleProjects.map((p, idx) => {
-                    const isLast = idx === visibleProjects.length - 1;
-                    return (
-                      <div key={`list-wrap-${p?.year || "y"}-${idx}-${p?.title || "t"}`}>
-                        {renderRow(p, idx, "list", isLast)}
-                      </div>
-                    );
-                  })}
-                  {!isExpanded && hasMore && (
-                    <div
-                      aria-hidden="true"
-                      className="pointer-events-none absolute left-0 right-0 z-30"
-                      style={{
-                        height: `${Math.round(COLLAPSED_ROW_H * 1.2)}px`,
-                        bottom: 0,
-                        background:
-                          "linear-gradient(to bottom, rgba(224,224,255,0) 0%, rgba(224,224,255,0.85) 70%, rgba(224,224,255,1) 100%)",
-                      }}
-                    />
                   )}
                 </motion.div>
 
@@ -705,7 +699,7 @@ export default function Works({ textColor, sectionOn }) {
                       type="button"
                       onClick={toggleExpanded}
                       aria-label={toggleAriaLabel}
-                      className={`${programme.className} font-semibold text-[1.125rem] tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity`}
+                      className={`${programme.className} font-semibold text-[1.125rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-6 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
                     >
                       close
                     </button>

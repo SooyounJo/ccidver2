@@ -1,7 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const SHEET_ID = "1E8UMK080DW05VXntVnUJpfr1X1nPAtvqHhzrwGIg0Ss";
+// Usage:
+//   node scripts/generate_sheets_static_data.mjs <SHEET_ID>
+// If omitted, falls back to the historical default.
+const SHEET_ID = process.argv?.[2] || "1E8UMK080DW05VXntVnUJpfr1X1nPAtvqHhzrwGIg0Ss";
 const SHEET_NAMES = ["main", "about", "desc", "works", "members"];
 
 function csvParse(text) {

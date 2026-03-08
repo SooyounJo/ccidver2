@@ -9,9 +9,10 @@ export default function Cover() {
   const [typedWords, setTypedWords] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [startWaveAnim, setStartWaveAnim] = useState(false);
-  const [activeWords, setActiveWords] = useState([]);
+  const [activeLine, setActiveLine] = useState(0); // 0: top line, 1: bottom line
 
-  const WAVE_ANIMATION_DURATION = 8000; // ms, matches .wave-text animation duration
+  // Matches `.wave-text` animation duration in globals.css (18s)
+  const WAVE_ANIMATION_DURATION = 18000;
 
   useEffect(() => {
     const flatText = (sheetsStatic?.main || [])
@@ -54,12 +55,14 @@ export default function Cover() {
   }, [currentWordIndex, mainText]);
 
   useEffect(() => {
-    if (startWaveAnim && mainText && mainText[1]) {
-      setActiveWords([0]); // Start wave on typedWords[1]
-      setTimeout(() => {
-        setActiveWords([0, 1]);
-      }, WAVE_ANIMATION_DURATION);
-    }
+    if (!startWaveAnim || !mainText) return;
+
+    setActiveLine(0);
+    const id = window.setInterval(() => {
+      setActiveLine((prev) => (prev === 0 ? 1 : 0));
+    }, WAVE_ANIMATION_DURATION);
+
+    return () => window.clearInterval(id);
   }, [startWaveAnim, mainText]);
 
   const [startAnim, setStartAnim] = useState(false);
@@ -90,7 +93,7 @@ export default function Cover() {
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[0] ? (
-            <span className={`wave-text ${activeWords.includes(1) ? "active" : ""}`}>
+            <span className={`wave-text ${activeLine === 0 ? "active" : ""}`}>
               {typedWords[0]}
             </span>
           ) : (
@@ -106,7 +109,7 @@ export default function Cover() {
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[0] ? (
-            <span className={`wave-text ${activeWords.includes(1) ? "active" : ""}`}>
+            <span className={`wave-text ${activeLine === 0 ? "active" : ""}`}>
               {typedWords[0]}
             </span>
           ) : (
@@ -125,7 +128,7 @@ export default function Cover() {
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[1] ? (
-            <span className={`wave-text ${activeWords.includes(0) ? "active" : ""}`}>
+            <span className={`wave-text ${activeLine === 1 ? "active" : ""}`}>
               {typedWords[1]}
             </span>
           ) : (
@@ -141,7 +144,7 @@ export default function Cover() {
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[1] ? (
-            <span className={`wave-text ${activeWords.includes(0) ? "active" : ""}`}>
+            <span className={`wave-text ${activeLine === 1 ? "active" : ""}`}>
               {typedWords[1]}
             </span>
           ) : (

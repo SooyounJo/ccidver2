@@ -105,7 +105,7 @@ export default function CustomCursor() {
   const base =
     "pointer-events-none fixed left-0 top-0 z-[9999] will-change-transform opacity-0";
   const shown = visible ? "opacity-100" : "opacity-0";
-  const scaleClass = pressed ? "scale-[0.92]" : isPointer ? "scale-[1.45]" : "scale-100";
+  const scaleClass = pressed ? "scale-[0.92]" : isPointer ? "scale-[1.45]" : "scale-[0.9]";
 
   return (
     <div
