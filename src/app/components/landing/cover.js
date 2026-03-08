@@ -1,6 +1,6 @@
 "use client";
 
-import { pxGrotesk } from "@/fonts/fonts";
+import { neuehaas } from "@/fonts/fonts";
 import { useState, useEffect } from "react";
 import { sheetsStatic } from "@/app/data/sheetsStatic";
 
@@ -9,9 +9,10 @@ export default function Cover() {
   const [typedWords, setTypedWords] = useState([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [startWaveAnim, setStartWaveAnim] = useState(false);
-  const [activeWords, setActiveWords] = useState([]);
+  const [activeLine, setActiveLine] = useState(0); // 0: top line, 1: bottom line
 
-  const WAVE_ANIMATION_DURATION = 8000; // ms, matches .wave-text animation duration
+  // Matches `.wave-text` animation duration in globals.css (18s)
+  const WAVE_ANIMATION_DURATION = 18000;
 
   useEffect(() => {
     const flatText = (sheetsStatic?.main || [])
@@ -54,12 +55,14 @@ export default function Cover() {
   }, [currentWordIndex, mainText]);
 
   useEffect(() => {
-    if (startWaveAnim && mainText && mainText[1]) {
-      setActiveWords([0]); // Start wave on typedWords[1]
-      setTimeout(() => {
-        setActiveWords([0, 1]);
-      }, WAVE_ANIMATION_DURATION);
-    }
+    if (!startWaveAnim || !mainText) return;
+
+    setActiveLine(0);
+    const id = window.setInterval(() => {
+      setActiveLine((prev) => (prev === 0 ? 1 : 0));
+    }, WAVE_ANIMATION_DURATION);
+
+    return () => window.clearInterval(id);
   }, [startWaveAnim, mainText]);
 
   const [startAnim, setStartAnim] = useState(false);
@@ -81,16 +84,16 @@ export default function Cover() {
     : { transformOrigin: "left center" };
 
   return (
-    <div className="relative flex flex-col w-full h-full lg:pt-[28dvh] pt-[20vh] px-0">
-      <div className="text-center lg:text-left relative inline-block w-full lg:h-[24vw] h-[26vw] lg:h-[3.8vw] leading-[1.1] lg:leading-[1.3] text-[7.5vw] lg:text-[3vw] text-[#0f0f13]">
+    <div className="relative flex flex-col w-full h-full lg:pt-[38dvh] pt-[29vh] px-0 translate-x-0 md:-translate-x-1 lg:-translate-x-6 gap-[4vw] md:gap-[2.4vw] lg:gap-[1.5vw]">
+      <div className="text-left relative inline-block w-full h-auto min-h-[3.2em] md:min-h-0 text-[7.5vw] md:text-[3vw] lg:text-[3vw] text-[#0f0f13]">
         <pre
-          className={`${pxGrotesk.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-hidden relative ${
+          className={`${neuehaas.className} tracking-[1px] md:hidden whitespace-pre-wrap overflow-visible relative leading-[0.82] ${
             currentWordIndex === 0 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[0] ? (
-            <span className={`wave-text ${activeWords.includes(1) ? "active" : ""}`}>
+            <span className={`wave-text ${activeLine === 0 ? "active" : ""}`}>
               {typedWords[0]}
             </span>
           ) : (
@@ -100,13 +103,13 @@ export default function Cover() {
           )}
         </pre>
         <p
-          className={`${pxGrotesk.className} tracking-[-1px] hidden lg:block overflow-hidden relative ${
+          className={`${neuehaas.className} tracking-[-1px] hidden md:block overflow-visible relative leading-[0.92] whitespace-nowrap ${
             currentWordIndex === 0 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[0] ? (
-            <span className={`wave-text ${activeWords.includes(1) ? "active" : ""}`}>
+            <span className={`wave-text ${activeLine === 0 ? "active" : ""}`}>
               {typedWords[0]}
             </span>
           ) : (
@@ -117,15 +120,15 @@ export default function Cover() {
         </p>
       </div>
 
-      <div className="text-center lg:text-left relative inline-block w-full lg:h-[24vw] h-[26vw] lg:h-[3.8vw] leading-[1.1] lg:leading-[1.3] text-[7.5vw] lg:text-[3vw] text-white lg:-translate-x-8 lg:translate-y-4">
+      <div className="text-left relative inline-block w-full h-auto min-h-[3.2em] md:min-h-0 text-[7.5vw] md:text-[3vw] lg:text-[3vw] text-white">
         <pre
-          className={`${pxGrotesk.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-hidden relative ${
+          className={`${neuehaas.className} tracking-[1px] md:hidden whitespace-pre-wrap overflow-visible relative leading-[0.82] ${
             currentWordIndex === 1 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[1] ? (
-            <span className={`wave-text ${activeWords.includes(0) ? "active" : ""}`}>
+            <span className={`wave-text ${activeLine === 1 ? "active" : ""}`}>
               {typedWords[1]}
             </span>
           ) : (
@@ -135,13 +138,13 @@ export default function Cover() {
           )}
         </pre>
         <p
-          className={`${pxGrotesk.className} tracking-[-1px] hidden lg:block overflow-hidden relative ${
+          className={`${neuehaas.className} tracking-[-1px] hidden md:block overflow-visible relative leading-[0.92] whitespace-nowrap ${
             currentWordIndex === 1 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
         >
           {startWaveAnim && mainText && mainText[1] ? (
-            <span className={`wave-text ${activeWords.includes(0) ? "active" : ""}`}>
+            <span className={`wave-text ${activeLine === 1 ? "active" : ""}`}>
               {typedWords[1]}
             </span>
           ) : (

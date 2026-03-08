@@ -90,19 +90,35 @@ export default function AboutIntro({ activeId, onChange, aboutStyle = 2 }) {
               {/* Same 2-col grid as text: left=English, right=Korean */}
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                 <div className="w-full md:col-span-2 flex justify-center">
-                  <img
-                    src="/img/logo.png"
-                    alt="Sectors We Serve"
-                    className={[
-                      "block w-full h-auto",
-                      // Fit within the combined (EN+KR) text width.
-                      "max-w-[980px] lg:max-w-[1160px]",
-                      // Slightly nudge left on desktop widths.
-                      "md:-translate-x-6",
-                      "select-none pointer-events-none",
-                    ].join(" ")}
-                    draggable={false}
-                  />
+                  <>
+                    {/* Mobile / mid-resize: use the Figma export image */}
+                    <img
+                      src="/img/mobile_logo.png"
+                      alt="Sectors We Serve"
+                      className={[
+                        "block lg:hidden",
+                        // Prevent clipping within the fixed-height About section.
+                        "w-auto h-auto object-contain",
+                        "max-w-[92vw] max-h-[32vh] sm:max-h-[36vh] md:max-h-[40vh]",
+                        "select-none pointer-events-none",
+                      ].join(" ")}
+                      draggable={false}
+                    />
+                    {/* Desktop: keep the existing logo layout image */}
+                    <img
+                      src="/img/logo.png"
+                      alt="Sectors We Serve"
+                      className={[
+                        "hidden lg:block w-full h-auto",
+                        // Fit within the combined (EN+KR) text width.
+                        "max-w-[980px] lg:max-w-[1160px]",
+                        // Slightly nudge left on desktop widths.
+                        "md:-translate-x-6",
+                        "select-none pointer-events-none",
+                      ].join(" ")}
+                      draggable={false}
+                    />
+                  </>
                 </div>
               </div>
             </div>

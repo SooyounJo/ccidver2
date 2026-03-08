@@ -1,5 +1,5 @@
 // AUTO-GENERATED from Google Sheets (CCID Web Q2)
-// Source: https://docs.google.com/spreadsheets/d/1E8UMK080DW05VXntVnUJpfr1X1nPAtvqHhzrwGIg0Ss/edit
+// Source: https://docs.google.com/spreadsheets/d/1ZpzuJgyIkteZuwL942ZlP7RZ-rFK3xzfZIFagthwMBg/edit
 // Do not edit by hand. Re-generate via: node scripts/generate_sheets_static_data.mjs
 
 export const sheetsStatic = {
@@ -202,7 +202,7 @@ export const sheetsStatic = {
       "엘지전자: Affectionate Intelligence CX 디자인",
       "CJ CGV, 네이버 클라우드: AI 에이전트 기반 몰입형 공공 인터랙션 플랫폼 디자인",
       "현대엔지비, 외장디자인 효율화를 위한 AI Driven Design 프로세스 개발 연구과제",
-      "삼성전자 MX, 차세대 대화면 에디터 디자인을 위한 사용성 조사 및 AI 컨셉 발굴 연구과제",
+      "산업통상자원부: 디자인 워크플로우를 고려한 AI 디자인 생성 파이프라인 개발",
       "삼성전자 MX, 차세대 대화면 에디터 디자인을 위한 사용성 조사 및 AI 컨셉 발굴 연구과제",
       "삼성전자 VD, 스크린 인터랙션 감성 고도화를 위한 감성품질평가 및 삼성다움 조사 연구과제",
       "현대엔지비, 2030 e-MPV를 위한 선행 내장디자인 AI UX 컨셉 연구과제",
@@ -425,18 +425,18 @@ export const sheetsStatic = {
     ],
     [
       "Student Researchers",
-      "Hyeonji Lee",
+      "Hyunji Lee",
       "https://drive.google.com/thumbnail?id=1geRCTuicomKdZVGay12MRo4VM2eZ2P8I",
       "",
-      "Design Strategy\nInteraction Design\nPrototyping",
+      "Design Strategy\nUser Experience Design\nInteraction Design",
       ""
     ],
     [
       "Student Researchers",
-      "Suyeon Cho",
+      "Sooyoun Jo",
       "https://drive.google.com/thumbnail?id=1yBMkw94qC0oO_aww1DeJFJ6C7QLgednJ",
       "",
-      "Interaction Design\nGenerative AI\nPrototyping",
+      "Interaction Design\nUser Experience Design\nPrototyping",
       ""
     ],
     [

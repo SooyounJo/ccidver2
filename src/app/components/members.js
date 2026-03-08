@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { neuehaas, pxGrotesk } from "@/fonts/fonts";
+import { pxGrotesk } from "@/fonts/fonts";
 import { sheetsStatic } from "@/app/data/sheetsStatic";
 import GreyPlaceholder from "@/app/components/common/GreyPlaceholder";
 
@@ -31,42 +31,20 @@ export default function Members() {
   }
 
   const categories = Object.entries(membersInfo);
-  const [firstCategory, ...otherCategories] = categories;
   const allMembers = categories.flatMap(([, list]) => (Array.isArray(list) ? list : [])).filter(Boolean);
 
-  const chunkPairs = (list) => {
-    const out = [];
-    for (let i = 0; i < list.length; i += 2) {
-      out.push([list[i], list[i + 1]].filter(Boolean));
-    }
-    return out;
-  };
-
-  const colStartClasses = {
-    1: "col-start-1",
-    2: "col-start-2",
-    3: "col-start-3",
-    4: "col-start-4",
-    5: "col-start-5",
-    6: "col-start-6",
-    7: "col-start-7",
-    8: "col-start-8",
-  };
-
-  const renderMemberBlock = (member, colStart, isDirector = false) => {
+  const renderMemberCard = (member) => {
     const [, name, image, role, bio] = member;
     const imageSrc = String(image || "").trim();
-    const imageColClass = colStartClasses[colStart] || "col-start-1";
-    const textColClass = colStartClasses[colStart + 1] || "col-start-2";
     const normalizedRole = (role || "").replace(/Design\s+at\s+/i, "Design at\n");
     const normalizedBio = (bio || "")
       .replace(/\bformerly\b\s*/gi, "")
       .trim();
 
     return (
-      <>
-        <div className={`${imageColClass} col-span-1`}>
-          <div className="group relative w-[132px] h-[153px] overflow-hidden rounded-[3px]">
+      <div className="min-w-0 flex items-start gap-6">
+        <div className="flex-none">
+          <div className="group relative w-[124px] h-[144px] overflow-hidden rounded-[3px]">
             <GreyPlaceholder className="absolute inset-0 w-full h-full" />
             {imageSrc && (
               <img
@@ -100,13 +78,14 @@ export default function Members() {
             </div>
           </div>
         </div>
-        <div className={`${textColClass} col-span-1 w-[250px] flex flex-col items-start text-left`}>
-          <p className={`${pxGrotesk.className} text-[16px] leading-[1.45] font-semibold text-black whitespace-nowrap`}>
+
+        <div className="min-w-0 flex-1 flex flex-col items-start text-left">
+          <p className={`${pxGrotesk.className} text-[16px] leading-[1.45] font-semibold text-black truncate w-full`}>
             {name || ""}
           </p>
           {normalizedRole && (
             <p
-              className={`${pxGrotesk.className} leading-[1.45] font-medium text-black/70 whitespace-pre ${
+              className={`${pxGrotesk.className} leading-[1.45] font-medium text-black/70 whitespace-pre w-full ${
                 normalizedRole.length > 22 ? "text-[14px]" : "text-[16px]"
               }`}
             >
@@ -114,14 +93,12 @@ export default function Members() {
             </p>
           )}
           {normalizedBio && (
-            <div
-              className={`${pxGrotesk.className} text-[12px] leading-[1.45] font-light text-black/70 whitespace-pre w-full mt-[16px]`}
-            >
+            <div className={`${pxGrotesk.className} text-[12px] leading-[1.45] font-light text-black/70 whitespace-pre w-full mt-[16px]`}>
               {normalizedBio}
             </div>
           )}
         </div>
-      </>
+      </div>
     );
   };
 
@@ -140,7 +117,7 @@ export default function Members() {
               const imageSrc = String(image || "").trim();
               return (
                 <div key={`m-${idx}-${name || "n"}`} className="min-w-0">
-                  <div className="w-full overflow-hidden rounded-[3px] bg-[#F6F0FF] aspect-[132/153]">
+                  <div className="w-full overflow-hidden rounded-[3px] bg-[#F6F0FF] aspect-[124/144]">
                     {imageSrc ? (
                       <img
                         src={imageSrc}
@@ -168,28 +145,26 @@ export default function Members() {
         </div>
 
         {/* Desktop */}
-        <div className="hidden sm:flex pt-[1rem] flex-col gap-[1rem]">
-          {firstCategory?.[1]?.length ? (
-            <div className="grid grid-cols-8 gap-x-[32px] border-b border-black pb-[32px]">
-              {renderMemberBlock(firstCategory[1][0], 1, true)}
-            </div>
-          ) : null}
-
-          {otherCategories.map(([category, members]) => (
-            <div key={category} className="flex flex-col gap-0">
-              {chunkPairs(members).map((pair, idx) => (
-                <div
-                  key={`${category}-${idx}`}
-                  className={`grid grid-cols-8 gap-x-[32px] pb-[32px] ${
-                    idx === chunkPairs(members).length - 1 ? "border-b border-black" : ""
-                  }`}
-                >
-                  {pair[0] && renderMemberBlock(pair[0], 1)}
-                  {pair[1] && renderMemberBlock(pair[1], 4)}
+        <div className="hidden sm:block pt-[1rem]">
+          {categories.map(([category, members], catIdx) => {
+            const list = Array.isArray(members) ? members.filter(Boolean) : [];
+            if (list.length === 0) return null;
+            const isLastCategory = catIdx === categories.length - 1;
+            return (
+              <div
+                key={category}
+                className={`${isLastCategory ? "" : "border-b border-black"} pb-[32px]`}
+              >
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-[48px] gap-y-[40px] pt-[16px]">
+                  {list.map((m, idx) => (
+                    <div key={`${category}-${idx}-${m?.[1] || "m"}`} className="min-w-0">
+                      {renderMemberCard(m)}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
