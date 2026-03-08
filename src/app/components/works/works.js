@@ -618,8 +618,8 @@ export default function Works({ textColor, sectionOn }) {
               </div>
 
               <div className="flex-1 flex flex-col">
-                {/* Mobile: one card per row (image + title + year only) */}
-                <div className="sm:hidden pt-4 space-y-6">
+                {/* Mobile/tablet: one card per row (image + title + year only) */}
+                <div className="lg:hidden pt-4 space-y-6">
                   {visibleProjects.map((p, idx) => renderMobileCard(p, idx))}
                   {!isExpanded && hasMore && (
                     <div className="pt-2 flex justify-center">
@@ -647,10 +647,10 @@ export default function Works({ textColor, sectionOn }) {
                   )}
                 </div>
 
-                {/* Desktop */}
+                {/* Desktop (lg+) */}
                 <motion.div
                   animate={contentControls}
-                  className={`hidden sm:block relative pt-[1rem] space-y-[1rem] ${
+                  className={`hidden lg:block relative pt-[1rem] space-y-[1rem] ${
                     isExpanded ? "overflow-visible" : "overflow-hidden"
                   }`}
                   style={

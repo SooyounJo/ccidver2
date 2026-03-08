@@ -78,11 +78,20 @@ export default function HomeClient() {
 
     let raf = 0;
     const clamp01 = (n) => Math.max(0, Math.min(1, n));
+    const smoothstep01 = (t) => {
+      const x = clamp01(t);
+      return x * x * (3 - 2 * x);
+    };
     const update = () => {
       raf = 0;
       const st = mainEl.scrollTop || 0;
-      // 0 at top, then fade in over the first ~180px of scroll.
-      const t = st <= 1 ? 0 : clamp01((st - 1) / 180);
+      // Dissolve should:
+      // - be invisible at the very top
+      // - kick in quickly on first scroll
+      // Note: the overlay is positioned inside the cover section, so it naturally disappears
+      // once the cover scrolls out of view (no separate fade-out needed).
+      const vh = mainEl.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 0) || 1;
+      const t = smoothstep01(st <= 0 ? 0 : st / 120);
       setCoverBottomFade(t);
     };
     const onScroll = () => {
@@ -341,27 +350,30 @@ export default function HomeClient() {
           id="cover"
           className="relative z-10 w-[100%] h-[100%] snap-start flex items-start justify-start"
         >
-          <div className="relative z-10 w-full max-w-[var(--siteMax)] mx-auto pr-[var(--siteGutter)] pl-[calc(var(--siteGutter)*0.55)] lg:pl-[calc(var(--siteGutter)*0.4)]">
+          <div className="relative z-10 w-full max-w-[var(--siteMax)] mx-auto pr-[var(--siteGutter)] pl-[calc(var(--siteGutter)*1.25)] md:pl-[calc(var(--siteGutter)*1.1)] lg:pl-[calc(var(--siteGutter)*0.4)]">
             <Cover textColor={BASE_TEXT} />
           </div>
           <div
-            className="absolute bottom-0 left-0 w-full h-[3vh] pointer-events-none z-0 flex"
-            style={{ opacity: coverBottomFade, transition: "opacity 380ms ease-out" }}
+            aria-hidden="true"
+            className="absolute bottom-0 left-0 w-full h-[26vh] md:h-[30vh] pointer-events-none z-0"
+            style={{
+              opacity: coverBottomFade,
+              transform: `translateY(${(1 - coverBottomFade) * 18}px)`,
+              transition:
+                "opacity 420ms cubic-bezier(0.16, 1, 0.3, 1), transform 520ms cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 520ms cubic-bezier(0.16, 1, 0.3, 1)",
+              backdropFilter: `blur(${6 + coverBottomFade * 16}px) saturate(1.05)`,
+              WebkitBackdropFilter: `blur(${6 + coverBottomFade * 16}px) saturate(1.05)`,
+              // Fade out BOTH the gradient and the backdrop blur to avoid a hard cutoff edge.
+              maskImage:
+                "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 44%, rgba(0,0,0,0.25) 74%, rgba(0,0,0,0) 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 44%, rgba(0,0,0,0.25) 74%, rgba(0,0,0,0) 100%)",
+              backgroundColor: BASE_BG,
+              background:
+                // Use the same base color as the page background to eliminate seams.
+                "linear-gradient(to top, rgba(240, 240, 236, 1) 0%, rgba(240, 240, 236, 1) 28%, rgba(240, 240, 236, 0.52) 54%, rgba(240, 240, 236, 0.16) 76%, rgba(240, 240, 236, 0) 100%)",
+            }}
           >
-            <div
-              className="w-[44.27%] h-full"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(240, 240, 237, 0.7) 0%, rgba(240, 240, 237, 0.3) 50%, rgba(240, 240, 237, 0.12) 80%, transparent 100%)",
-              }}
-            />
-            <div
-              className="w-[55.73%] h-full"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(240, 240, 237, 0.7) 0%, rgba(240, 240, 237, 0.3) 50%, rgba(240, 240, 237, 0.12) 80%, transparent 100%)",
-              }}
-            />
           </div>
         </section>
         <section

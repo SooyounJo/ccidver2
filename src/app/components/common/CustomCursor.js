@@ -105,14 +105,13 @@ export default function CustomCursor() {
   const base =
     "pointer-events-none fixed left-0 top-0 z-[9999] will-change-transform opacity-0";
   const shown = visible ? "opacity-100" : "opacity-0";
-  const pressScale = pressed ? "scale-[0.92]" : "scale-100";
-  const pointerScale = isPointer ? "scale-[1.12]" : "scale-100";
+  const scaleClass = pressed ? "scale-[0.92]" : isPointer ? "scale-[1.45]" : "scale-100";
 
   return (
     <div
       ref={elRef}
       aria-hidden="true"
-      className={`${base} ${shown} ${pointerScale} ${pressScale}`}
+      className={`${base} ${shown} ${scaleClass}`}
       style={{ transition: "opacity 160ms ease-out, transform 160ms ease-out" }}
     >
       <div
