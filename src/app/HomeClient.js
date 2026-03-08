@@ -341,7 +341,7 @@ export default function HomeClient() {
           id="cover"
           className="relative z-10 w-[100%] h-[100%] snap-start flex items-start justify-start"
         >
-          <div className="relative z-10 w-full max-w-[var(--siteMax)] px-[var(--siteGutter)] mx-auto">
+          <div className="relative z-10 w-full max-w-[var(--siteMax)] mx-auto pr-[var(--siteGutter)] pl-[calc(var(--siteGutter)*0.55)] lg:pl-[calc(var(--siteGutter)*0.4)]">
             <Cover textColor={BASE_TEXT} />
           </div>
           <div

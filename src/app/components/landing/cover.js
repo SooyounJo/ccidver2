@@ -1,6 +1,6 @@
 "use client";
 
-import { pxGrotesk } from "@/fonts/fonts";
+import { neuehaas } from "@/fonts/fonts";
 import { useState, useEffect } from "react";
 import { sheetsStatic } from "@/app/data/sheetsStatic";
 
@@ -81,10 +81,10 @@ export default function Cover() {
     : { transformOrigin: "left center" };
 
   return (
-    <div className="relative flex flex-col w-full h-full lg:pt-[28dvh] pt-[20vh] px-0">
-      <div className="text-center lg:text-left relative inline-block w-full lg:h-[24vw] h-[26vw] lg:h-[3.8vw] leading-[1.1] lg:leading-[1.3] text-[7.5vw] lg:text-[3vw] text-[#0f0f13]">
+    <div className="relative flex flex-col w-full h-full lg:pt-[38dvh] pt-[29vh] px-0 -translate-x-2 lg:-translate-x-6">
+      <div className="text-left relative inline-block w-full h-auto min-h-[18vw] lg:min-h-0 text-[7.5vw] lg:text-[3vw] text-[#0f0f13]">
         <pre
-          className={`${pxGrotesk.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-hidden relative ${
+          className={`${neuehaas.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-visible relative leading-[0.72] ${
             currentWordIndex === 0 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
@@ -100,7 +100,7 @@ export default function Cover() {
           )}
         </pre>
         <p
-          className={`${pxGrotesk.className} tracking-[-1px] hidden lg:block overflow-hidden relative ${
+          className={`${neuehaas.className} tracking-[-1px] hidden lg:block overflow-visible relative leading-[0.78] ${
             currentWordIndex === 0 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
@@ -117,9 +117,9 @@ export default function Cover() {
         </p>
       </div>
 
-      <div className="text-center lg:text-left relative inline-block w-full lg:h-[24vw] h-[26vw] lg:h-[3.8vw] leading-[1.1] lg:leading-[1.3] text-[7.5vw] lg:text-[3vw] text-white lg:-translate-x-8 lg:translate-y-4">
+      <div className="text-left relative inline-block w-full h-auto min-h-[18vw] lg:min-h-0 text-[7.5vw] lg:text-[3vw] text-white -mt-[7vw] lg:mt-[1.5vw]">
         <pre
-          className={`${pxGrotesk.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-hidden relative ${
+          className={`${neuehaas.className} tracking-[1px] lg:hidden whitespace-pre-wrap overflow-visible relative leading-[0.72] ${
             currentWordIndex === 1 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
@@ -135,7 +135,7 @@ export default function Cover() {
           )}
         </pre>
         <p
-          className={`${pxGrotesk.className} tracking-[-1px] hidden lg:block overflow-hidden relative ${
+          className={`${neuehaas.className} tracking-[-1px] hidden lg:block overflow-visible relative leading-[0.78] ${
             currentWordIndex === 1 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}

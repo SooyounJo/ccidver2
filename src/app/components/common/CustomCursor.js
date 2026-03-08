@@ -8,7 +8,7 @@ const INTERACTIVE_SELECTOR =
 export default function CustomCursor() {
   const [enabled, setEnabled] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [variant, setVariant] = useState("circle"); // circle | triangle
+  const [isPointer, setIsPointer] = useState(false);
   const [pressed, setPressed] = useState(false);
   const elRef = useRef(null);
   const rafRef = useRef(0);
@@ -28,7 +28,7 @@ export default function CustomCursor() {
       setEnabled(ok);
       setVisible(false);
       setPressed(false);
-      setVariant("circle");
+      setIsPointer(false);
     };
 
     apply();
@@ -52,25 +52,25 @@ export default function CustomCursor() {
       });
     };
 
-    const getVariantAtPoint = (x, y) => {
+    const getIsPointerAtPoint = (x, y) => {
       const t = document.elementFromPoint?.(x, y);
       const el = t && t.nodeType === 1 ? t : null;
-      if (!el) return "circle";
+      if (!el) return false;
       const interactive = el.closest ? el.closest(INTERACTIVE_SELECTOR) : null;
-      return interactive ? "triangle" : "circle";
+      return !!interactive;
     };
 
     const onMouseMove = (e) => {
       setVisible(true);
       updatePos(e.clientX, e.clientY);
-      const next = getVariantAtPoint(e.clientX, e.clientY);
-      setVariant((prev) => (prev === next ? prev : next));
+      const next = getIsPointerAtPoint(e.clientX, e.clientY);
+      setIsPointer((prev) => (prev === next ? prev : next));
     };
     const onMouseEnter = () => setVisible(true);
     const onMouseLeave = () => {
       setVisible(false);
       setPressed(false);
-      setVariant("circle");
+      setIsPointer(false);
     };
     const onMouseDown = () => setPressed(true);
     const onMouseUp = () => setPressed(false);
@@ -97,13 +97,8 @@ export default function CustomCursor() {
   if (!enabled) return null;
 
   // Style rules:
-  // 1) translucent white, no outline
-  // 2) drop shadow ~30% opacity
-  const CURSOR_BG = "rgba(255,255,255,0.46)";
-  const DROP_SHADOW = "rgba(0,0,0,0.30)";
-  // Y-axis downward shadow, even less blur
-  const CURSOR_FILTER = `drop-shadow(0 16px 10px ${DROP_SHADOW})`;
-  const TRIANGLE_CLIP = "polygon(50% 6%, 6% 94%, 94% 94%)";
+  // 1) solid white circle (no effects)
+  const CURSOR_BG = "#ffffff";
   const OUTER = 76;
   const INNER = 60;
 
@@ -111,62 +106,34 @@ export default function CustomCursor() {
     "pointer-events-none fixed left-0 top-0 z-[9999] will-change-transform opacity-0";
   const shown = visible ? "opacity-100" : "opacity-0";
   const pressScale = pressed ? "scale-[0.92]" : "scale-100";
+  const pointerScale = isPointer ? "scale-[1.12]" : "scale-100";
 
   return (
     <div
       ref={elRef}
       aria-hidden="true"
-      className={`${base} ${shown} ${pressScale}`}
+      className={`${base} ${shown} ${pointerScale} ${pressScale}`}
       style={{ transition: "opacity 160ms ease-out, transform 160ms ease-out" }}
     >
-      {variant === "circle" ? (
+      <div
+        className="fixed left-0 top-0"
+        style={{
+          width: `${OUTER}px`,
+          height: `${OUTER}px`,
+          transform: "translate(-50%, -50%)",
+        }}
+      >
         <div
-          className="fixed left-0 top-0"
+          className="absolute left-1/2 top-1/2 rounded-full"
           style={{
-            width: `${OUTER}px`,
-            height: `${OUTER}px`,
+            width: `${INNER}px`,
+            height: `${INNER}px`,
             transform: "translate(-50%, -50%)",
-            filter: CURSOR_FILTER,
+            background: CURSOR_BG,
+            border: "none",
           }}
-        >
-          <div
-            className="absolute left-1/2 top-1/2 rounded-full"
-            style={{
-              width: `${INNER}px`,
-              height: `${INNER}px`,
-              transform: "translate(-50%, -50%)",
-              background: CURSOR_BG,
-              border: "none",
-              backdropFilter: "blur(12px) saturate(1.35)",
-              WebkitBackdropFilter: "blur(12px) saturate(1.35)",
-            }}
-          />
-        </div>
-      ) : (
-        <div
-          className="fixed left-0 top-0"
-          style={{
-            width: `${OUTER}px`,
-            height: `${OUTER}px`,
-            transform: "translate(-50%, -50%) rotate(-18deg)",
-            filter: CURSOR_FILTER,
-          }}
-        >
-          <div
-            className="absolute left-1/2 top-1/2"
-            style={{
-              width: `${INNER}px`,
-              height: `${INNER}px`,
-              transform: "translate(-50%, -50%)",
-              clipPath: TRIANGLE_CLIP,
-              background: CURSOR_BG,
-              border: "none",
-              backdropFilter: "blur(12px) saturate(1.35)",
-              WebkitBackdropFilter: "blur(12px) saturate(1.35)",
-            }}
-          />
-        </div>
-      )}
+        />
+      </div>
     </div>
   );
 }
