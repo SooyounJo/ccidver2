@@ -57,8 +57,8 @@ function ShimmerEmail({ text }) {
           backgroundClip: "text",
           WebkitTextFillColor: "transparent",
           color: "transparent",
-          // Glow feeling (applies to glyphs only)
-          textShadow: "0 0 10px rgba(255,255,255,0.7), 0 0 22px rgba(255,255,255,0.35)",
+          // 모션(하이라이트 이동)은 유지하되, 블러 느낌의 글로우는 제거
+          textShadow: "none",
         }}
       >
         {text}

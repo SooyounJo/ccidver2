@@ -58,6 +58,8 @@ export default function Members() {
                 }}
               />
             )}
+            {/* 소셜 아이콘(LinkedIn, Instagram)은 일단 숨김 처리 */}
+            {/*
             <div className="pointer-events-none absolute left-3 bottom-3 flex gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
               <span aria-hidden="true">
                 <svg width="39" height="40" viewBox="0 0 39 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -76,6 +78,7 @@ export default function Members() {
                 </svg>
               </span>
             </div>
+            */}
           </div>
         </div>
 

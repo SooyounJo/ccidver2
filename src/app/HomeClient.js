@@ -41,6 +41,7 @@ export default function HomeClient() {
   const [aboutInfo, setAboutInfo] = useState(sheetsStatic?.about || []);
   const [coverBottomFade, setCoverBottomFade] = useState(0); // 0..1
   const [contactReveal, setContactReveal] = useState(0); // 0..1 (used to fade members->contact overlay)
+  const [contactTopFade, setContactTopFade] = useState(1); // contact 상단 그라데이션 투명도
   const ABOUT_ORDER = ["who", "sectors", "methodology"];
   const ABOUT_INITIAL_LOCK_MS = 900; // 최소 이 시간 동안은 항상 "Who We Are"를 먼저 보여줌
   const ABOUT_STEP_COOLDOWN_MS = 420;
@@ -93,9 +94,19 @@ export default function HomeClient() {
       // - kick in quickly on first scroll
       // Note: the overlay is positioned inside the cover section, so it naturally disappears
       // once the cover scrolls out of view (no separate fade-out needed).
-      const vh = mainEl.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 0) || 1;
       const t = smoothstep01(st <= 0 ? 0 : st / 120);
       setCoverBottomFade(t);
+
+      // Contact 섹션: 스크롤이 맨 아래에 가까워지면 상단 흰 그라데이션을 서서히 숨김
+      const scrollMax = (mainEl.scrollHeight || 0) - (mainEl.clientHeight || 0);
+      if (scrollMax <= 0) {
+        setContactTopFade(1);
+      } else {
+        const bottomRatio = clamp01(st / scrollMax); // 0=맨 위, 1=맨 아래
+        // 마지막 10% 구간에서만 서서히 사라지도록 매핑
+        const hideT = clamp01((bottomRatio - 0.9) / 0.1);
+        setContactTopFade(1 - hideT);
+      }
     };
     const onScroll = () => {
       if (raf) return;
@@ -378,22 +389,20 @@ export default function HomeClient() {
         {/* Members -> Contact dissolve overlay (visible only while in Members) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none fixed left-0 right-0 bottom-0 z-[12] h-[46vh] md:h-[52vh]"
+          className="pointer-events-none fixed left-0 right-0 bottom-0 z-[12] h-[42vh] md:h-[48vh]"
           style={{
-            // Keep the dissolve active whenever the viewport is "between" Members and Contact.
-            // Using intersection-driven ratios avoids abrupt toggles caused by snap/sectionOn switching.
             opacity: Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal),
             transition: "opacity 420ms cubic-bezier(0.16, 1, 0.3, 1)",
-            backdropFilter: `blur(${8 + Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal) * 14}px) saturate(1.05)`,
-            WebkitBackdropFilter: `blur(${8 + Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal) * 14}px) saturate(1.05)`,
-            // Fade the blur itself upward so there is no hard cutoff edge.
+            // 블러 강도와 채도를 낮춰 더 은은하게
+            backdropFilter: `blur(${5 + Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal) * 9}px) saturate(1.02)`,
+            WebkitBackdropFilter: `blur(${5 + Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal) * 9}px) saturate(1.02)`,
             maskImage:
-              "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.18) 76%, rgba(0,0,0,0) 100%)",
+              "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0.22) 78%, rgba(0,0,0,0) 100%)",
             WebkitMaskImage:
-              "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.18) 76%, rgba(0,0,0,0) 100%)",
-            // Light tint to blend Members into Contact smoothly.
+              "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0.22) 78%, rgba(0,0,0,0) 100%)",
+            // 전체 그라데이션의 알파를 살짝 낮춰 더 부드럽게
             background:
-              "linear-gradient(to top, rgba(240,240,236,0.0) 0%, rgba(240,240,236,0.10) 30%, rgba(240,240,236,0.22) 58%, rgba(240,240,236,0.36) 78%, rgba(240,240,236,0.52) 100%)",
+              "linear-gradient(to top, rgba(240,240,236,0.0) 0%, rgba(240,240,236,0.06) 30%, rgba(240,240,236,0.16) 58%, rgba(240,240,236,0.26) 78%, rgba(240,240,236,0.38) 100%)",
           }}
         />
         <section
@@ -405,26 +414,23 @@ export default function HomeClient() {
           </div>
           <div
             aria-hidden="true"
-            className="absolute bottom-0 left-0 w-full h-[26vh] md:h-[30vh] pointer-events-none z-0"
+            className="absolute bottom-0 left-0 w-full h-[24vh] md:h-[28vh] pointer-events-none z-0"
             style={{
               opacity: coverBottomFade,
-              transform: `translateY(${(1 - coverBottomFade) * 18}px)`,
+              transform: `translateY(${(1 - coverBottomFade) * 16}px)`,
               transition:
                 "opacity 420ms cubic-bezier(0.16, 1, 0.3, 1), transform 520ms cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 520ms cubic-bezier(0.16, 1, 0.3, 1)",
-              backdropFilter: `blur(${6 + coverBottomFade * 16}px) saturate(1.05)`,
-              WebkitBackdropFilter: `blur(${6 + coverBottomFade * 16}px) saturate(1.05)`,
-              // Fade out BOTH the gradient and the backdrop blur to avoid a hard cutoff edge.
+              backdropFilter: `blur(${4 + coverBottomFade * 10}px) saturate(1.02)`,
+              WebkitBackdropFilter: `blur(${4 + coverBottomFade * 10}px) saturate(1.02)`,
               maskImage:
-                "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 44%, rgba(0,0,0,0.25) 74%, rgba(0,0,0,0) 100%)",
+                "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 44%, rgba(0,0,0,0.24) 74%, rgba(0,0,0,0) 100%)",
               WebkitMaskImage:
-                "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 44%, rgba(0,0,0,0.25) 74%, rgba(0,0,0,0) 100%)",
+                "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 44%, rgba(0,0,0,0.24) 74%, rgba(0,0,0,0) 100%)",
               backgroundColor: BASE_BG,
               background:
-                // Use the same base color as the page background to eliminate seams.
-                "linear-gradient(to top, rgba(240, 240, 236, 1) 0%, rgba(240, 240, 236, 1) 28%, rgba(240, 240, 236, 0.52) 54%, rgba(240, 240, 236, 0.16) 76%, rgba(240, 240, 236, 0) 100%)",
+                "linear-gradient(to top, rgba(240, 240, 236, 1) 0%, rgba(240, 240, 236, 1) 26%, rgba(240, 240, 236, 0.46) 54%, rgba(240, 240, 236, 0.14) 76%, rgba(240, 240, 236, 0) 100%)",
             }}
-          >
-          </div>
+          />
         </section>
         <section
           id="about"
@@ -439,10 +445,10 @@ export default function HomeClient() {
           />
           <div
             aria-hidden="true"
-            className="absolute bottom-0 left-0 w-full h-[22vh] pointer-events-none z-0"
+            className="absolute bottom-0 left-0 w-full h-[20vh] pointer-events-none z-0"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(240, 240, 237, 0.2) 0%, rgba(226, 226, 255, 0.55) 55%, rgba(226, 226, 255, 0.9) 100%)",
+                "linear-gradient(to bottom, rgba(240, 240, 237, 0.12) 0%, rgba(226, 226, 255, 0.4) 55%, rgba(226, 226, 255, 0.75) 100%)",
             }}
           />
           <div className="relative z-10 w-full max-w-[var(--siteMax)] px-[var(--siteGutter)] mx-auto h-full flex flex-col justify-start">
@@ -460,18 +466,18 @@ export default function HomeClient() {
         >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 right-0 top-0 h-[24vh] z-10"
+            className="pointer-events-none absolute left-0 right-0 top-0 h-[22vh] z-10"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(224,224,255,0.95) 0%, rgba(224,224,255,0.7) 45%, rgba(224,224,255,0.2) 80%, rgba(224,224,255,0) 100%)",
+                "linear-gradient(to bottom, rgba(224,224,255,0.82) 0%, rgba(224,224,255,0.55) 45%, rgba(224,224,255,0.12) 80%, rgba(224,224,255,0) 100%)",
             }}
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 right-0 bottom-0 h-[22vh] z-10"
+            className="pointer-events-none absolute left-0 right-0 bottom-0 h-[20vh] z-10"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(224,224,255,0.95) 0%, rgba(224,224,255,0.75) 55%, rgba(224,224,255,1) 100%)",
+                "linear-gradient(to bottom, rgba(224,224,255,0.85) 0%, rgba(224,224,255,0.7) 55%, rgba(224,224,255,0.98) 100%)",
             }}
           />
           <div className="relative z-10 w-full max-w-[var(--siteMaxWide)] px-[var(--siteGutter)] mx-auto">
@@ -491,7 +497,7 @@ export default function HomeClient() {
             className="pointer-events-none absolute inset-0 z-0"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(220,220,255,0.92) 0%, rgba(220,220,255,0.62) 40%, rgba(220,220,255,0.28) 70%, rgba(240,240,236,0) 100%)",
+                "linear-gradient(to bottom, rgba(220,220,255,0.78) 0%, rgba(220,220,255,0.48) 40%, rgba(220,220,255,0.2) 70%, rgba(240,240,236,0) 100%)",
             }}
           />
           <div className="relative z-10 w-full max-w-[var(--siteMaxWide)] px-[var(--siteGutter)] mx-auto">
@@ -507,7 +513,8 @@ export default function HomeClient() {
             className="pointer-events-none absolute top-0 left-0 right-0 h-[4vh] z-20"
             style={{
               background:
-                "linear-gradient(to bottom, rgba(240,240,236,0.9) 0%, rgba(240,240,236,0.45) 55%, rgba(240,240,236,0.12) 80%, transparent 100%)",
+                "linear-gradient(to bottom, rgba(240,240,236,0.72) 0%, rgba(240,240,236,0.36) 55%, rgba(240,240,236,0.10) 80%, transparent 100%)",
+              opacity: contactTopFade,
             }}
           />
           <Contact borderRadius={borderRadius} sectionOn={sectionOn} colorPalette={colorPalette} />
