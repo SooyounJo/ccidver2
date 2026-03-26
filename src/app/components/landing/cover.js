@@ -87,7 +87,7 @@ export default function Cover() {
     <div className="relative flex flex-col w-full h-full lg:pt-[38dvh] pt-[29vh] px-0 translate-x-0 md:-translate-x-1 lg:-translate-x-6 gap-[4vw] md:gap-[2.4vw] lg:gap-[1.5vw]">
       <div className="text-left relative inline-block w-full h-auto min-h-[3.2em] md:min-h-0 text-[7.5vw] md:text-[3vw] lg:text-[3vw] text-[#0f0f13]">
         <pre
-          className={`${neuehaas.className} tracking-[1px] md:hidden whitespace-pre-wrap overflow-visible relative leading-[0.82] ${
+          className={`${neuehaas.className} tracking-[1px] md:hidden whitespace-pre-wrap overflow-visible relative leading-[1.1] ${
             currentWordIndex === 0 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}
@@ -122,7 +122,7 @@ export default function Cover() {
 
       <div className="text-left relative inline-block w-full h-auto min-h-[3.2em] md:min-h-0 text-[7.5vw] md:text-[3vw] lg:text-[3vw] text-white">
         <pre
-          className={`${neuehaas.className} tracking-[1px] md:hidden whitespace-pre-wrap overflow-visible relative leading-[0.82] ${
+          className={`${neuehaas.className} tracking-[1px] md:hidden whitespace-pre-wrap overflow-visible relative leading-[1.1] ${
             currentWordIndex === 1 ? "blinking-cursor" : ""
           }`}
           style={{ ...scaleStyle }}

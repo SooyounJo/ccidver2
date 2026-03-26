@@ -712,7 +712,7 @@ export default function Works({ textColor, sectionOn }) {
                 </motion.div>
 
                 {isExpanded && (
-                  <div className="pt-8 pb-2 flex justify-center">
+                  <div className="hidden lg:flex pt-8 pb-2 justify-center">
                     <button
                       type="button"
                       onClick={toggleExpanded}
