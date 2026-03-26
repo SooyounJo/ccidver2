@@ -438,8 +438,8 @@ export default function Works({ textColor, sectionOn }) {
         {/* Right: image boxes (3-up, ≈624px wide) */}
         <div className="flex-1 pt-0 lg:pt-0 overflow-hidden">
           {/* Figma: image grid gap 16px */}
-          <div
-            className={`flex flex-wrap lg:flex-nowrap gap-[1rem] transition-[gap] duration-300 ease-out ${
+              <div
+              className={`flex flex-wrap lg:flex-nowrap gap-[1rem] transition-[gap] duration-300 ease-out ${
               isRowExpanded && useHeroOnHover ? "lg:gap-0" : ""
             }`}
           >
@@ -487,6 +487,12 @@ export default function Works({ textColor, sectionOn }) {
                       "lg:w-[197.33px]"
                     } ${isRowExpanded && useHeroOnHover ? "lg:w-0 lg:max-w-0 lg:opacity-0" : ""}`}
                     style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedRowKey(rowKey);
+                      setExpandedRowMedia(mediaList);
+                      setExpandedMediaIndex(1);
+                    }}
                   >
                     <img
                       src={p.images[1]}
@@ -517,6 +523,12 @@ export default function Works({ textColor, sectionOn }) {
                             : "lg:opacity-100"
                         }`}
                         style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedRowKey(rowKey);
+                          setExpandedRowMedia(mediaList);
+                          setExpandedMediaIndex(2);
+                        }}
                       >
                         <video
                           src={p.images[2]}
@@ -536,6 +548,12 @@ export default function Works({ textColor, sectionOn }) {
                             : "lg:opacity-100"
                         }`}
                         style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedRowKey(rowKey);
+                          setExpandedRowMedia(mediaList);
+                          setExpandedMediaIndex(2);
+                        }}
                       >
                         <img
                           src={p.images[2]}

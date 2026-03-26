@@ -42,6 +42,8 @@ export default function HomeClient() {
   const [coverBottomFade, setCoverBottomFade] = useState(0); // 0..1
   const [contactReveal, setContactReveal] = useState(0); // 0..1 (used to fade members->contact overlay)
   const ABOUT_ORDER = ["who", "sectors", "methodology"];
+  const ABOUT_INITIAL_LOCK_MS = 900; // 최소 이 시간 동안은 항상 "Who We Are"를 먼저 보여줌
+  const ABOUT_STEP_COOLDOWN_MS = 420;
 
   // OS-specific layout vars (mac desktop: fixed 80px gutters like Figma).
   useEffect(() => {
@@ -174,11 +176,13 @@ export default function HomeClient() {
       if (delta === 0) return;
 
       const now = Date.now();
-      if (now - aboutLockTimeRef.current < 400) {
+      // About 섹션으로 막 진입했을 때는 섹션이 완전히 자리 잡을 때까지
+      // 휠 입력으로 탭이 바뀌지 않도록 더 여유를 둔다.
+      if (now - aboutLockTimeRef.current < ABOUT_INITIAL_LOCK_MS) {
         e.preventDefault();
         return;
       }
-      if (now - lastStepTimeRef.current < 400) {
+      if (now - lastStepTimeRef.current < ABOUT_STEP_COOLDOWN_MS) {
         e.preventDefault();
         return;
       }
@@ -369,7 +373,7 @@ export default function HomeClient() {
           color: BASE_TEXT,
           borderColor: BASE_TEXT,
         }}
-        className="relative scrollbar-hide z-10 h-[100dvh] w-[100%] overflow-y-scroll snap-y snap-proximity"
+        className="relative scrollbar-hide z-10 h-[100dvh] w-[100%] overflow-y-scroll snap-y snap-mandatory"
       >
         {/* Members -> Contact dissolve overlay (visible only while in Members) */}
         <div
@@ -452,7 +456,7 @@ export default function HomeClient() {
           style={{
             backgroundColor: "#E0E0FF",
           }}
-          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-none flex justify-center items-start pt-12 pb-[14vh] lg:pb-[18vh] overflow-visible"
+          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-start flex justify-center items-start pt-12 pb-[14vh] lg:pb-[18vh] overflow-visible"
         >
           <div
             aria-hidden="true"
@@ -480,7 +484,7 @@ export default function HomeClient() {
             backgroundColor: "#F0F0EC",
             color: BASE_TEXT,
           }}
-          className="relative z-10 w-[100%] min-h-[100dvh] snap-none flex justify-center items-start pt-[5.5rem] pb-[16vh] lg:pb-[20vh] overflow-visible"
+          className="relative z-10 w-[100%] min-h-[100dvh] snap-start flex justify-center items-start pt-[5.5rem] pb-[16vh] lg:pb-[20vh] overflow-visible"
         >
           <div
             aria-hidden="true"
