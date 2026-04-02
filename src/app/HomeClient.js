@@ -416,10 +416,8 @@ export default function HomeClient() {
           id="cover"
           className="relative z-10 w-[100%] h-[100%] snap-start flex items-start justify-start"
         >
-          <div
-            className="relative z-10 w-full max-w-[var(--siteMax)] mx-auto pr-[var(--siteGutter)] pl-[calc(var(--siteGutter)*1.25)] md:pl-[calc(var(--siteGutter)*1.1)] lg:pl-[calc(var(--siteGutter)*0.4)]"
-            style={SCROLL_CONTENT_EDGE_MASK}
-          >
+          {/* Mask stays off text wrapper — same-node mask can clip descenders (g, j, p, y) in WebKit. */}
+          <div className="relative z-10 w-full max-w-[var(--siteMax)] mx-auto pr-[var(--siteGutter)] pl-[calc(var(--siteGutter)*1.25)] md:pl-[calc(var(--siteGutter)*1.1)] lg:pl-[calc(var(--siteGutter)*0.4)]">
             <Cover textColor={BASE_TEXT} />
           </div>
           <div

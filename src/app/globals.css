@@ -121,6 +121,8 @@ html {
   animation: textWave 18s ease-in-out infinite;
   opacity: 1;
   animation-play-state: paused;
+  /* Avoid tight inline-block line boxes clipping descenders (g, j, p, y). */
+  padding-bottom: 0.1em;
 }
 
 .wave-text.active {

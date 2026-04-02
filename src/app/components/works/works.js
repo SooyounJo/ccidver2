@@ -244,8 +244,8 @@ export default function Works({ textColor, sectionOn }) {
     // CJ row uses 137px content height + 32px bottom padding (=169px total).
     const clientKey = String(p?.client || "").toLowerCase();
     const isCJ = clientKey === "cj cgv & naver cloud";
-    // Base (non-hover) size should stay at the original 197.33×160 feel.
-    const contentH = 150;
+    // Match Figma content height (160px); 150px was clipping descenders (g, j, p, y).
+    const contentH = 160;
     const rowH = contentH + 32;
     const contentHHover = 280;
     const rowHHover = contentHHover + 32;
@@ -312,7 +312,7 @@ export default function Works({ textColor, sectionOn }) {
           style={{ height: isRowExpanded ? `${contentHHover}px` : `${contentH}px` }}
         >
           {/* Left: Client + Year (296×contentH) */}
-          <div className="lg:basis-[296px] lg:flex-none overflow-hidden">
+          <div className="lg:basis-[296px] lg:flex-none min-w-0">
               <div className={`${pxGrotesk.className} tracking-[-0.03em] flex flex-col`}>
               {/* Title block: pb 5px */}
               <div className="pb-[5px]">
@@ -342,14 +342,10 @@ export default function Works({ textColor, sectionOn }) {
           >
             {/* Title + description block (Frame 3 + Frame 2) */}
             {/* Figma: title→names spacing is 17px */}
-            <div
-              className={`min-w-0 pr-2 lg:pr-4 flex flex-col gap-[17px] w-full max-w-[17.625rem] ${
-                isRowExpanded ? "overflow-visible" : "overflow-hidden"
-              }`}
-            >
+            <div className="min-w-0 shrink-0 pr-2 lg:pr-4 flex flex-col gap-[17px] w-full max-w-[17.625rem]">
               {/* Title: 16px, weight 500, full opacity */}
               <span
-                className="truncate font-medium"
+                className="truncate font-medium leading-[1.45]"
                 style={
                   contentFont === "hel"
                     ? { fontFamily: "Helvetica, Arial, sans-serif" }
@@ -385,7 +381,7 @@ export default function Works({ textColor, sectionOn }) {
                 p.tf &&
                 String(p.tf).trim() !== "" && (
                   <div
-                    className="opacity-70 text-[1rem] leading-[1.45]"
+                    className="opacity-70 text-[1rem] leading-[1.45] min-w-0 max-w-full"
                     style={
                       contentFont === "hel"
                         ? { fontFamily: "Helvetica, Arial, sans-serif" }
@@ -634,10 +630,10 @@ export default function Works({ textColor, sectionOn }) {
           <div className="relative z-10 text-primaryB">
             <div className="w-full flex flex-col" style={{ backgroundColor: "transparent" }}>
               {/* Header row */}
-              <div className="h-[3.875rem] border-b border-primaryB flex items-end pb-4">
+              <div className="min-h-[3.875rem] border-b border-primaryB flex items-end pb-4">
                 <motion.div
                   animate={headerControls}
-                  className={`${pxGrotesk.className} tracking-[-0.03em] leading-none whitespace-nowrap text-[1.75rem] md:text-[1.875rem] lg:text-[2rem]`}
+                  className={`${pxGrotesk.className} tracking-[-0.03em] leading-[1.22] whitespace-nowrap text-[1.75rem] md:text-[1.875rem] lg:text-[2rem]`}
                 >
                   {selectedHeaderRaw}
                 </motion.div>
