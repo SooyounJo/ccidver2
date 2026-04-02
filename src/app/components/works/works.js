@@ -436,10 +436,18 @@ export default function Works({ textColor, sectionOn }) {
         </div>
 
         {/* Right: image boxes (3-up, ≈624px wide) */}
-        <div className="flex-1 pt-0 lg:pt-0 overflow-hidden">
+        <div
+          className="flex-1 pt-0 lg:pt-0 overflow-hidden"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,0) 100%)",
+            maskImage:
+              "linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,0) 100%)",
+          }}
+        >
           {/* Figma: image grid gap 16px */}
-              <div
-              className={`flex flex-wrap lg:flex-nowrap gap-[1rem] transition-[gap] duration-300 ease-out ${
+          <div
+            className={`flex flex-wrap lg:flex-nowrap gap-[1rem] transition-[gap] duration-300 ease-out ${
               isRowExpanded && useHeroOnHover ? "lg:gap-0" : ""
             }`}
           >
@@ -620,7 +628,7 @@ export default function Works({ textColor, sectionOn }) {
     <>
       <div
         ref={rootRef}
-        className="text-primaryB w-full font-[400] relative py-8 lg:py-10"
+        className="text-primaryB w-full font-[400] relative py-4 sm:py-6 lg:py-10"
       >
         {visibleProjects.length > 0 ? (
           <div className="relative z-10 text-primaryB">
@@ -647,7 +655,23 @@ export default function Works({ textColor, sectionOn }) {
                         aria-label={toggleAriaLabel}
                         className={`${programme.className} font-semibold text-[1.05rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-5 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
                       >
-                        more
+                        <svg
+                          width="26"
+                          height="14"
+                          viewBox="0 0 26 14"
+                          fill="none"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <path
+                            d="M3 3L13 11L23 3"
+                            fill="none"
+                            stroke="#5c5c66"
+                            strokeWidth="1.55"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </button>
                     </div>
                   )}
@@ -659,7 +683,23 @@ export default function Works({ textColor, sectionOn }) {
                         aria-label={toggleAriaLabel}
                         className={`${programme.className} font-semibold text-[1.05rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-5 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
                       >
-                        close
+                        <svg
+                          width="26"
+                          height="14"
+                          viewBox="0 0 26 14"
+                          fill="none"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <path
+                            d="M3 11L13 3L23 11"
+                            fill="none"
+                            stroke="#5c5c66"
+                            strokeWidth="1.55"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </button>
                     </div>
                   )}
@@ -675,14 +715,14 @@ export default function Works({ textColor, sectionOn }) {
                     className="relative space-y-[1rem] overflow-hidden transition-[max-height] duration-700 ease-out"
                     style={{
                       maxHeight: isExpanded ? "200rem" : "46.5rem",
-                      // Use a gradient mask to fade out the clipped edge without a visible seam line.
+                      // Fade-out 영역을 더 아래로 내려서 컨텐츠가 더 많이 보이도록 조정.
                       ...(isExpanded || !hasMore
                         ? null
                         : {
                             maskImage:
-                              "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 72%, rgba(0,0,0,0.25) 88%, rgba(0,0,0,0) 100%)",
+                              "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 86%, rgba(0,0,0,0.25) 94%, rgba(0,0,0,0) 100%)",
                             WebkitMaskImage:
-                              "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 72%, rgba(0,0,0,0.25) 88%, rgba(0,0,0,0) 100%)",
+                              "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 86%, rgba(0,0,0,0.25) 94%, rgba(0,0,0,0) 100%)",
                           }),
                     }}
                   >
@@ -698,14 +738,30 @@ export default function Works({ textColor, sectionOn }) {
 
                   {/* More button (separated from the clipped container so it never gets cut) */}
                   {!isExpanded && hasMore && (
-                    <div className="pt-6 flex justify-center">
+                    <div className="pt-6 lg:pt-8 pb-2 flex justify-center">
                       <button
                         type="button"
                         onClick={toggleExpanded}
                         aria-label={toggleAriaLabel}
                         className={`${programme.className} font-semibold text-[1.125rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-6 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
                       >
-                        more
+                        <svg
+                          width="28"
+                          height="16"
+                          viewBox="0 0 26 14"
+                          fill="none"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <path
+                            d="M3 3L13 11L23 3"
+                            fill="none"
+                            stroke="#5c5c66"
+                            strokeWidth="1.65"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </button>
                     </div>
                   )}
@@ -719,7 +775,23 @@ export default function Works({ textColor, sectionOn }) {
                       aria-label={toggleAriaLabel}
                       className={`${programme.className} font-semibold text-[1.125rem] leading-none tracking-[0.02em] text-primaryB hover:opacity-70 transition-opacity rounded-full px-6 py-2 bg-white/30 backdrop-blur-sm border border-white/40 shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
                     >
-                      close
+                      <svg
+                        width="28"
+                        height="16"
+                        viewBox="0 0 26 14"
+                        fill="none"
+                        aria-hidden="true"
+                        focusable="false"
+                      >
+                        <path
+                          d="M3 11L13 3L23 11"
+                          fill="none"
+                          stroke="#5c5c66"
+                          strokeWidth="1.65"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
                     </button>
                   </div>
                 )}

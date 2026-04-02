@@ -46,6 +46,18 @@ export default function HomeClient() {
   const ABOUT_INITIAL_LOCK_MS = 900; // 최소 이 시간 동안은 항상 "Who We Are"를 먼저 보여줌
   const ABOUT_STEP_COOLDOWN_MS = 420;
 
+  // 뷰포트 높이에 가까운 섹션만: 긴 스크롤(Works/Members)에 쓰면 마스크가 문서 전체 높이 기준이라 상단 제목까지 페이드됨
+  const SCROLL_CONTENT_EDGE_MASK = {
+    WebkitMaskImage:
+      "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.12) 3.5%, rgba(0,0,0,0.5) 7%, rgba(0,0,0,1) 11%, rgba(0,0,0,1) 100%)",
+    maskImage:
+      "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.12) 3.5%, rgba(0,0,0,0.5) 7%, rgba(0,0,0,1) 11%, rgba(0,0,0,1) 100%)",
+    WebkitMaskRepeat: "no-repeat",
+    maskRepeat: "no-repeat",
+    WebkitMaskSize: "100% 100%",
+    maskSize: "100% 100%",
+  };
+
   // OS-specific layout vars (mac desktop: fixed 80px gutters like Figma).
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -329,8 +341,7 @@ export default function HomeClient() {
 
   return (
     <div className="w-[100%] absolute scrollbar-hide bg-white z-[-2] overflow-x-hidden">
-      {/* ReactBits-style gradual blur under the top navigation */}
-      <GradualBlurTop sectionOn={sectionOn} />
+      <GradualBlurTop />
       <Header sectionOn={sectionOn} />
       <Nav
         sectionOn={sectionOn}
@@ -389,32 +400,31 @@ export default function HomeClient() {
         {/* Members -> Contact dissolve overlay (visible only while in Members) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none fixed left-0 right-0 bottom-0 z-[12] h-[42vh] md:h-[48vh]"
+          className="pointer-events-none fixed left-0 right-0 bottom-0 z-[12] h-[7vh] md:h-[9vh]"
           style={{
             opacity: Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal),
             transition: "opacity 420ms cubic-bezier(0.16, 1, 0.3, 1)",
-            // 블러 강도와 채도를 낮춰 더 은은하게
-            backdropFilter: `blur(${5 + Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal) * 9}px) saturate(1.02)`,
-            WebkitBackdropFilter: `blur(${5 + Math.max(0, Math.min(1, membersBlend)) * (1 - contactReveal) * 9}px) saturate(1.02)`,
             maskImage:
-              "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0.22) 78%, rgba(0,0,0,0) 100%)",
+              "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 28%, rgba(0,0,0,0.12) 62%, rgba(0,0,0,0) 100%)",
             WebkitMaskImage:
-              "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0.22) 78%, rgba(0,0,0,0) 100%)",
-            // 전체 그라데이션의 알파를 살짝 낮춰 더 부드럽게
+              "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 28%, rgba(0,0,0,0.12) 62%, rgba(0,0,0,0) 100%)",
             background:
-              "linear-gradient(to top, rgba(240,240,236,0.0) 0%, rgba(240,240,236,0.06) 30%, rgba(240,240,236,0.16) 58%, rgba(240,240,236,0.26) 78%, rgba(240,240,236,0.38) 100%)",
+              "linear-gradient(to top, rgba(240,240,236,0) 0%, rgba(240,240,236,0.06) 40%, rgba(240,240,236,0.18) 100%)",
           }}
         />
         <section
           id="cover"
           className="relative z-10 w-[100%] h-[100%] snap-start flex items-start justify-start"
         >
-          <div className="relative z-10 w-full max-w-[var(--siteMax)] mx-auto pr-[var(--siteGutter)] pl-[calc(var(--siteGutter)*1.25)] md:pl-[calc(var(--siteGutter)*1.1)] lg:pl-[calc(var(--siteGutter)*0.4)]">
+          <div
+            className="relative z-10 w-full max-w-[var(--siteMax)] mx-auto pr-[var(--siteGutter)] pl-[calc(var(--siteGutter)*1.25)] md:pl-[calc(var(--siteGutter)*1.1)] lg:pl-[calc(var(--siteGutter)*0.4)]"
+            style={SCROLL_CONTENT_EDGE_MASK}
+          >
             <Cover textColor={BASE_TEXT} />
           </div>
           <div
             aria-hidden="true"
-            className="absolute bottom-0 left-0 w-full h-[24vh] md:h-[28vh] pointer-events-none z-0"
+            className="absolute bottom-0 left-0 w-full h-[12vh] md:h-[16vh] pointer-events-none z-0"
             style={{
               opacity: coverBottomFade,
               transform: `translateY(${(1 - coverBottomFade) * 16}px)`,
@@ -445,13 +455,16 @@ export default function HomeClient() {
           />
           <div
             aria-hidden="true"
-            className="absolute bottom-0 left-0 w-full h-[20vh] pointer-events-none z-0"
+            className="absolute bottom-0 left-0 w-full h-[10vh] pointer-events-none z-0"
             style={{
               background:
                 "linear-gradient(to bottom, rgba(240, 240, 237, 0.12) 0%, rgba(226, 226, 255, 0.4) 55%, rgba(226, 226, 255, 0.75) 100%)",
             }}
           />
-          <div className="relative z-10 w-full max-w-[var(--siteMax)] px-[var(--siteGutter)] mx-auto h-full flex flex-col justify-start">
+          <div
+            className="relative z-10 w-full max-w-[var(--siteMax)] px-[var(--siteGutter)] mx-auto h-full flex flex-col justify-start"
+            style={SCROLL_CONTENT_EDGE_MASK}
+          >
             <div className="w-full pt-[7vh] md:pt-[8vh] lg:pt-[9vh] pb-[34vh] lg:pb-[38vh]">
               <AboutIntro activeId={activeAboutId} onChange={setActiveAboutId} aboutStyle={aboutStyle} />
             </div>
@@ -462,11 +475,11 @@ export default function HomeClient() {
           style={{
             backgroundColor: "#E0E0FF",
           }}
-          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] snap-start flex justify-center items-start pt-12 pb-[14vh] lg:pb-[18vh] overflow-visible"
+          className="transition-all duration-1000 lg:content-center w-full relative z-10 min-h-[100dvh] [@media(max-height:760px)]:min-h-0 snap-start flex justify-center items-start pt-8 pb-4 sm:pt-12 sm:pb-6 lg:pb-8 overflow-visible"
         >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 right-0 top-0 h-[22vh] z-10"
+            className="pointer-events-none absolute left-0 right-0 top-0 h-[12vh] z-10"
             style={{
               background:
                 "linear-gradient(to bottom, rgba(224,224,255,0.82) 0%, rgba(224,224,255,0.55) 45%, rgba(224,224,255,0.12) 80%, rgba(224,224,255,0) 100%)",
@@ -474,14 +487,17 @@ export default function HomeClient() {
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 right-0 bottom-0 h-[20vh] z-10"
+            className="pointer-events-none absolute left-0 right-0 bottom-0 h-[10vh] z-10"
             style={{
               background:
                 "linear-gradient(to bottom, rgba(224,224,255,0.85) 0%, rgba(224,224,255,0.7) 55%, rgba(224,224,255,0.98) 100%)",
             }}
           />
           <div className="relative z-10 w-full max-w-[var(--siteMaxWide)] px-[var(--siteGutter)] mx-auto">
-            <Works textColor={BASE_TEXT} sectionOn={sectionOn} />
+            {/* Works 섹션: 상단으로 올라갈수록 컨텐츠 자체가 투명해지도록 마스크 적용 */}
+            <div style={SCROLL_CONTENT_EDGE_MASK}>
+              <Works textColor={BASE_TEXT} sectionOn={sectionOn} />
+            </div>
           </div>
         </section>
         <section
@@ -490,7 +506,7 @@ export default function HomeClient() {
             backgroundColor: "#F0F0EC",
             color: BASE_TEXT,
           }}
-          className="relative z-10 w-[100%] min-h-[100dvh] snap-start flex justify-center items-start pt-[5.5rem] pb-[16vh] lg:pb-[20vh] overflow-visible"
+          className="relative z-10 w-[100%] min-h-[100dvh] [@media(max-height:760px)]:min-h-0 snap-start flex justify-center items-start pt-[5.5rem] pb-8 sm:pb-10 lg:pb-12 overflow-visible"
         >
           <div
             aria-hidden="true"
@@ -506,7 +522,7 @@ export default function HomeClient() {
         </section>
         <section
           id="contact"
-          className="relative z-10 w-[100%] h-[100dvh] snap-end pt-[16vh] lg:pt-[20vh] md:p-28 xl:p-40 p-6 content-center"
+          className="relative z-10 w-[100%] h-[100dvh] snap-end overflow-hidden"
         >
           <div
             aria-hidden="true"
@@ -517,7 +533,9 @@ export default function HomeClient() {
               opacity: contactTopFade,
             }}
           />
-          <Contact borderRadius={borderRadius} sectionOn={sectionOn} colorPalette={colorPalette} />
+          <div className="relative z-10 h-full">
+            <Contact borderRadius={borderRadius} sectionOn={sectionOn} colorPalette={colorPalette} />
+          </div>
           <footer className="transition duration-500 text-white absolute bottom-0 left-0 w-full h-auto text-center p-4 md:p-8 font-[400] leading-[1.5] text-[2.6vw] md:text-[1.8vw] lg:text-[0.9vw] xl:text-[0.75vw]">
             {aboutInfo?.[0]?.[3] || "© 2025. All rights reserved."}
           </footer>
